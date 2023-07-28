@@ -12,7 +12,6 @@ typedef struct
 } SDLWrapper;
 
 extern SDLWrapper* sdlwrap;
-
 extern sr_Buffer* screen;
 
 static const char* styles[] = { "fill", "line", NULL };

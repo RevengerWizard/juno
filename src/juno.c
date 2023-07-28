@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "luax.h"
 #include <SDL.h>
@@ -87,7 +88,7 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if(renderer == NULL)
     {
         fprintf(stderr, "Failed to create renderer: %s\n", SDL_GetError());
@@ -119,7 +120,7 @@ int main(int argc, char** argv)
     lua_setfield(L, -2, "__index");
     lua_pop(L, 1);
 
-    sdlwrap = (SDLWrapper*)lua_newuserdata(L, sizeof(SDLWrapper));
+    sdlwrap = (SDLWrapper*)lua_newuserdata(L, sizeof(*sdlwrap));
     sdlwrap->window = window;
     sdlwrap->renderer = renderer;
     sdlwrap->texture = texture;
@@ -195,8 +196,8 @@ int main(int argc, char** argv)
 
         char* l_pixels;
         int pitch;
-        SDL_LockTexture(texture, NULL, (void**)&l_pixels, &pitch);
-        memcpy(l_pixels, screen->pixels, WIDTH * HEIGHT * 4);
+        SDL_LockTexture(sdlwrap->texture, NULL, (void**)&l_pixels, &pitch);
+        memcpy(l_pixels, screen->pixels, pitch * HEIGHT);
 
         SDL_UnlockTexture(texture);
 
@@ -215,8 +216,11 @@ int main(int argc, char** argv)
         mouse_x = (mx - x) / scale;
         mouse_y = (my - y) / scale;
 
-        SDL_RenderCopy(renderer, texture, NULL, &dst);
-        SDL_RenderPresent(renderer);
+        SDL_SetRenderDrawColor(sdlwrap->renderer, 0, 0, 0, 255);
+        SDL_RenderClear(sdlwrap->renderer);
+
+        SDL_RenderCopy(sdlwrap->renderer, sdlwrap->texture, NULL, &dst);
+        SDL_RenderPresent(sdlwrap->renderer);
 
         double step = 1.0 / MAX_FPS;
         double now = SDL_GetTicks64() / 1000.0;
@@ -232,7 +236,6 @@ int main(int argc, char** argv)
         }
     }
 
-done:
     sr_destroyBuffer(screen);
 
     lua_close(L);
