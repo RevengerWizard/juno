@@ -17,7 +17,7 @@ static const luaL_Reg mods[] = {
     { "Data", luaopen_data },
     { "Buffer", luaopen_buffer },
     { "Font", luaopen_font },
-    /*{ "Joystick", luaopen_joystick_object },*/
+    { "Joystick", luaopen_joystick_object },
     /* Modules */
     { "joystick", luaopen_joystick },
     { "audio", luaopen_audio },
