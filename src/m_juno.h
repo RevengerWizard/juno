@@ -17,6 +17,7 @@ int luaopen_window(lua_State* L);
 int luaopen_graphics(lua_State* L);
 int luaopen_filesystem(lua_State* L);
 int luaopen_mouse(lua_State* L);
+int luaopen_event(lua_State* L);
 int luaopen_system(lua_State* L);
 int luaopen_timer(lua_State* L);
 

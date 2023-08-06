@@ -23,6 +23,7 @@ static const luaL_Reg mods[] = {
     { "audio", luaopen_audio },
     { "window", luaopen_window },
     { "graphics", luaopen_graphics },
+    { "event", luaopen_event },
     { "system", luaopen_system },
     { "filesystem", luaopen_filesystem },
     { "mouse", luaopen_mouse },

@@ -63,7 +63,7 @@ local handlers = {
 }
 
 function juno.run()
-    for i, e in ipairs(juno.system.poll()) do
+    for i, e in ipairs(juno.event.poll()) do
         if e.type == "quit" then
             call(handlers[e.type], e)
             return 0
