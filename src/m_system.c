@@ -90,6 +90,52 @@ static int system_poll(lua_State* L)
                 luax_setfield_string(L, "text", txt);
                 break;
             }
+            case SDL_JOYBUTTONDOWN:
+            {
+                luax_setfield_string(L, "type", "joystickpressed");
+                luax_setfield_number(L, "joystick", e.jbutton.which);
+                luax_setfield_number(L, "button", e.jbutton.button);
+                break;
+            }
+            case SDL_JOYAXISMOTION:
+            {
+                luax_setfield_string(L, "type", "joystickaxis");
+                luax_setfield_number(L, "joystick", e.jaxis.which);
+                luax_setfield_number(L, "axis", e.jaxis.axis);
+                int value = e.jaxis.value;
+                luax_setfield_number(L, "value", ((double)value + 0.5f) / (INT16_MAX + 0.5f));
+                break;
+            }
+            case SDL_JOYBUTTONUP:
+            {
+                luax_setfield_string(L, "type", "joystickreleased");
+                luax_setfield_number(L, "joystick", e.jbutton.which);
+                luax_setfield_number(L, "button", e.jbutton.button);
+                break;
+            }
+            case SDL_JOYHATMOTION:
+            {
+                luax_setfield_string(L, "type", "joystickhat");
+                luax_setfield_number(L, "joystick", e.jhat.which);
+                luax_setfield_number(L, "hat", e.jhat.hat);
+
+                lua_newtable(L); /* e.state */
+                luax_setfield_boolean(L, "up", e.jhat.value & SDL_HAT_UP);
+                luax_setfield_boolean(L, "down", e.jhat.value & SDL_HAT_DOWN);
+                luax_setfield_boolean(L, "left", e.jhat.value & SDL_HAT_LEFT);
+                luax_setfield_boolean(L, "right", e.jhat.value & SDL_HAT_RIGHT);
+                lua_setfield(L, -2, "state"); /* push state to event table */
+                break;
+            }
+            case SDL_JOYBALLMOTION:
+            {
+                luax_setfield_string(L, "type", "joystickball");
+                luax_setfield_number(L, "joystick", e.jball.which);
+                luax_setfield_number(L, "ball", e.jball.ball);
+                luax_setfield_number(L, "x", e.jball.xrel);
+                luax_setfield_number(L, "y", e.jball.yrel);
+                break;
+            }
             case SDL_WINDOWEVENT:
             {
                 switch(e.window.event)

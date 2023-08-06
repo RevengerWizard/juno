@@ -36,6 +36,21 @@ local handlers = {
         call(juno.mouse._event, e)
         call(juno.mousereleased, e.x, e.y, e.button)
     end,
+    joystickpressed = function(e)
+        call(juno.joystickpressed, juno.joystick.joysticks[e.joystick+1], e.button)
+    end,
+    joystickreleased = function(e)
+        call(juno.joystickreleased, juno.joystick.joysticks[e.joystick+1], e.button)
+    end,
+    joystickaxis = function(e)
+        call(juno.joystickaxis, juno.joystick.joysticks[e.joystick+1], e.axis, e.value)
+    end,
+    joystickhat = function(e)
+        call(juno.joystickhat, juno.joystick.joysticks[e.joystick+1], e.hat, e.state)
+    end,
+    joystickball = function(e)
+        call(juno.joystickball, juno.joystick.joysticks[e.joystick+1], e.ball, e.x, e.y)
+    end,
     textinput = function(e)
         call(juno.textinput, e.text)
     end,
@@ -96,6 +111,13 @@ local conf = merge({
 juno.window.setTitle(conf.title)
 juno.graphics.init(conf.width, conf.height)
 juno.audio.init()
+juno.joystick.init()
+
+--Open all of our joysticks and store them
+juno.joystick.joysticks = {}
+for i=0,juno.joystick.getCount()-1 do
+  table.insert(juno.joystick.joysticks,juno.joystick.open(i))
+end
 
 if juno.filesystem.exists("main.lua") then
     require "main"
