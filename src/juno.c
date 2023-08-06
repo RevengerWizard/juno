@@ -145,7 +145,7 @@ int main(int argc, char** argv)
 #include "keyboard_lua.h"
 #include "mouse_lua.h"
 #include "timer_lua.h"
-#include "boot_lua.h"
+#include "init_lua.h"
     struct
     {
         const char* name;
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
         { "keyboard.lua", keyboard_lua, sizeof(keyboard_lua) },
         { "mouse.lua", mouse_lua, sizeof(mouse_lua) },
         { "timer.lua", timer_lua, sizeof(timer_lua) },
-        { "boot.lua", boot_lua, sizeof(boot_lua) },
+        { "init.lua", init_lua, sizeof(init_lua) },
         { NULL, NULL, 0 }
     };
 
