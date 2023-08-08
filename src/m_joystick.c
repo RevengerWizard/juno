@@ -44,7 +44,7 @@ int luaopen_joystick_object(lua_State* L)
 
 static int joystick_init(lua_State* L)
 {
-    if(SDL_Init(SDL_INIT_JOYSTICK) != 0)
+    if(SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) != 0)
     {
         luaL_error(L, "could not init joystick");
     }
@@ -53,7 +53,7 @@ static int joystick_init(lua_State* L)
     return 0;
 }
 
-static int joystick_open(lua_State *L) 
+static int joystick_open(lua_State* L) 
 {
     int idx = luaL_checknumber(L, 1);
     Joystick* self;

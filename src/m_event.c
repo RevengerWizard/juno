@@ -1,26 +1,9 @@
+#include <stdbool.h>
+
 #include <SDL.h>
 
 #include "luax.h"
-#include "m_keyboard.h"
-
-static const char* button_str(int id)
-{
-    switch(id)
-    {
-        case SDL_BUTTON_LEFT:
-            return "left";
-        case SDL_BUTTON_MIDDLE:
-            return "middle";
-        case SDL_BUTTON_RIGHT:
-            return "right";
-        case SDL_BUTTON_X1:
-            return "wheelup";
-        case SDL_BUTTON_X2:
-            return "wheeldown";
-        default:
-            return "unknown";
-    }
-}
+#include "mapping.h"
 
 static int event_poll(lua_State* L)
 {
@@ -34,25 +17,15 @@ static int event_poll(lua_State* L)
 
         switch(e.type)
         {
-            case SDL_QUIT:
-                luax_setfield_string(L, "type", "quit");
-                break;
             case SDL_KEYDOWN:
-            {
-                SDL_Scancode k = e.key.keysym.scancode;
-                const char* name = scancode_names[k] ? scancode_names[k] : "unknown";
-
-                luax_setfield_string(L, "type", "keypressed");
-                luax_setfield_string(L, "key", name);
-                break;
-            }
             case SDL_KEYUP:
             {
                 SDL_Scancode k = e.key.keysym.scancode;
-                const char* name = scancode_names[k] ? scancode_names[k] : "unknown";
 
-                luax_setfield_string(L, "type", "keyreleased");
-                luax_setfield_string(L, "key", name);
+                bool down = e.type == SDL_KEYDOWN;
+
+                luax_setfield_string(L, "type", down ? "keypressed" : "keyreleased");
+                luax_setfield_string(L, "key", keyboard_names[k]);
                 break;
             }
             case SDL_MOUSEMOTION:
@@ -64,17 +37,25 @@ static int event_poll(lua_State* L)
                 break;
             }
             case SDL_MOUSEBUTTONDOWN:
-                luax_setfield_string(L, "type", "mousepressed");
-                luax_setfield_string(L, "button", button_str(e.button.button));
-                luax_setfield_number(L, "x", e.button.x);
-                luax_setfield_number(L, "y", e.button.y);
-                break;
             case SDL_MOUSEBUTTONUP:
-                luax_setfield_string(L, "type", "mousereleased");
-                luax_setfield_string(L, "button", button_str(e.button.button));
+            {
+                Uint8 b = e.button.button;
+
+                bool down = e.type == SDL_MOUSEBUTTONDOWN;
+
+                luax_setfield_string(L, "type", down ? "mousepressed" : "mousereleased");
+                luax_setfield_string(L, "button", mouse_names[b]);
                 luax_setfield_number(L, "x", e.button.x);
                 luax_setfield_number(L, "y", e.button.y);
                 break;
+            }
+            case SDL_MOUSEWHEEL:
+            {
+                luax_setfield_string(L, "type", "wheelmoved");
+                luax_setfield_number(L, "x", e.wheel.x);
+                luax_setfield_number(L, "y", e.wheel.y);
+                break;
+            }
             case SDL_TEXTINPUT:
             {
                 const char* txt = e.text.text;
@@ -82,9 +63,20 @@ static int event_poll(lua_State* L)
                 luax_setfield_string(L, "text", txt);
                 break;
             }
-            case SDL_JOYBUTTONDOWN:
+            case SDL_TEXTEDITING:
             {
-                luax_setfield_string(L, "type", "joystickpressed");
+                luax_setfield_string(L, "type", "textedited");
+                luax_setfield_string(L, "text", e.edit.text);
+                luax_setfield_number(L, "start", e.edit.start);
+                luax_setfield_number(L, "length", e.edit.length);
+                break;
+            }
+            case SDL_JOYBUTTONDOWN:
+            case SDL_JOYBUTTONUP:
+            {
+                bool down = e.type == SDL_JOYBUTTONDOWN;
+
+                luax_setfield_string(L, "type", down ? "joystickpressed" : "joystickreleased");
                 luax_setfield_number(L, "joystick", e.jbutton.which);
                 luax_setfield_number(L, "button", e.jbutton.button);
                 break;
@@ -96,13 +88,6 @@ static int event_poll(lua_State* L)
                 luax_setfield_number(L, "axis", e.jaxis.axis);
                 int value = e.jaxis.value;
                 luax_setfield_number(L, "value", ((double)value + 0.5f) / (INT16_MAX + 0.5f));
-                break;
-            }
-            case SDL_JOYBUTTONUP:
-            {
-                luax_setfield_string(L, "type", "joystickreleased");
-                luax_setfield_number(L, "joystick", e.jbutton.which);
-                luax_setfield_number(L, "button", e.jbutton.button);
                 break;
             }
             case SDL_JOYHATMOTION:
@@ -128,10 +113,63 @@ static int event_poll(lua_State* L)
                 luax_setfield_number(L, "y", e.jball.yrel);
                 break;
             }
+            case SDL_CONTROLLERBUTTONDOWN:
+            case SDL_CONTROLLERBUTTONUP:
+            {
+                bool down = e.type == SDL_CONTROLLERBUTTONDOWN;
+
+                const char* button;
+                if(e.cbutton.button < 0)
+                {
+                    button = "unknown";
+                }
+                else
+                {
+                    button = gamepad_names[e.cbutton.button];
+                }
+
+                luax_setfield_string(L, "type", down ? "gamepadpressed" : "gamepadreleased");
+                luax_setfield_number(L, "joystick", e.cbutton.which);
+                luax_setfield_string(L, "button", button);
+                break;
+            }
+            case SDL_JOYDEVICEADDED:
+            {
+                luax_setfield_string(L, "type", "joystickadded");
+                luax_setfield_number(L, "joystick", e.jdevice.which);
+                break;
+            }
+            case SDL_JOYDEVICEREMOVED:
+            {
+                luax_setfield_string(L, "type", "joystickremoved");
+                luax_setfield_number(L, "joystick", e.jdevice.which);
+                break;
+            }
             case SDL_WINDOWEVENT:
             {
                 switch(e.window.event)
                 {
+                    case SDL_WINDOWEVENT_FOCUS_GAINED:
+                    case SDL_WINDOWEVENT_FOCUS_LOST:
+                    {
+                        luax_setfield_string(L, "type", "focus");
+                        luax_setfield_boolean(L, "focus", e.window.event == SDL_WINDOWEVENT_FOCUS_GAINED);
+                        break;
+                    }
+                    case SDL_WINDOWEVENT_ENTER:
+                    case SDL_WINDOWEVENT_LEAVE:
+                    {
+                        luax_setfield_string(L, "type", "mousefocus");
+                        luax_setfield_boolean(L, "focus", e.window.event == SDL_WINDOWEVENT_ENTER);
+                        break;
+                    }
+                    case SDL_WINDOWEVENT_SHOWN:
+                    case SDL_WINDOWEVENT_HIDDEN:
+                    {
+                        luax_setfield_string(L, "type", "visible");
+                        luax_setfield_boolean(L, "visible", e.window.event == SDL_WINDOWEVENT_SHOWN);
+                        break;
+                    }
                     case SDL_WINDOWEVENT_RESIZED:
                     {
                         int width = e.window.data1;
@@ -144,6 +182,12 @@ static int event_poll(lua_State* L)
                 }
                 break;
             }
+            case SDL_APP_TERMINATING:
+            case SDL_QUIT:
+                luax_setfield_string(L, "type", "quit");
+                break;
+            default:
+                break;
         }
 
         lua_rawseti(L, -2, event++);
@@ -151,8 +195,24 @@ static int event_poll(lua_State* L)
     return 1;
 }
 
+static int event_pump(lua_State* L)
+{
+    SDL_PumpEvents();
+    return 0;
+}
+
+static int event_quit(lua_State* L)
+{
+    SDL_Event event;
+    event.type = SDL_QUIT;
+    SDL_PushEvent(&event);
+    return 0;
+}
+
 static const luaL_Reg reg[] = {
     { "poll", event_poll },
+    { "pump", event_pump },
+    { "quit", event_quit },
     { NULL, NULL }
 };
 

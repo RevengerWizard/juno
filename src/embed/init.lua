@@ -36,6 +36,9 @@ local handlers = {
         call(juno.mouse._event, e)
         call(juno.mousereleased, e.x, e.y, e.button)
     end,
+    wheelmoved = function(e)
+        call(juno.wheelmoved, e.x, e.y)
+    end,
     joystickpressed = function(e)
         call(juno.joystickpressed, juno.joystick.joysticks[e.joystick+1], e.button)
     end,
@@ -51,8 +54,32 @@ local handlers = {
     joystickball = function(e)
         call(juno.joystickball, juno.joystick.joysticks[e.joystick+1], e.ball, e.x, e.y)
     end,
+    gamepadpressed = function(e)
+        call(juno.gamepadpressed, juno.joystick.joysticks[e.joystick+1], e.button)
+    end,
+    gamepadreleased = function(e)
+        call(juno.gamepadreleased, juno.joystick.joysticks[e.joystick+1], e.button)
+    end,
+    joystickadded = function(e)
+        call(juno.joystickadded, e.joystick)
+    end,
+    joystickremoved = function(e)
+        call(juno.joystickremoved, e.joystick)
+    end,
     textinput = function(e)
         call(juno.textinput, e.text)
+    end,
+    textedited = function(e)
+        call(juno.textedited, e.text, e.start, e.length)
+    end,
+    focus = function(e)
+        call(juno.focus, e.focus)
+    end,
+    mousefocus = function(e)
+        call(juno.mousefocus, e.focus)
+    end,
+    visible = function(e)
+        call(juno.visible, e.visible)
     end,
     resize = function(e)
         call(juno.resize, e.w, e.h)
@@ -63,6 +90,7 @@ local handlers = {
 }
 
 function juno.run()
+    juno.event.pump()
     for i, e in ipairs(juno.event.poll()) do
         if e.type == "quit" then
             call(handlers[e.type], e)
@@ -78,12 +106,15 @@ function juno.run()
     call(juno.mouse.reset)
 end
 
+-- Mount project paths
 if juno.arg[2] then
+    -- Try to mount all arguments as package
     for i=2, #juno.arg do
         juno.filesystem.mount(juno.arg[i])
     end
 end
 
+-- Add filesystem-compatible package loader
 table.insert(package.loaders, 1, function(modname)
     modname = modname:gsub("%.", "/")
     for x in package.path:gmatch("[^;]+") do
@@ -113,10 +144,10 @@ juno.graphics.init(conf.width, conf.height)
 juno.audio.init()
 juno.joystick.init()
 
---Open all of our joysticks and store them
+-- Open all of our joysticks and store them
 juno.joystick.joysticks = {}
-for i=0,juno.joystick.getCount()-1 do
-  table.insert(juno.joystick.joysticks,juno.joystick.open(i))
+for i=0, juno.joystick.getCount()-1 do
+    table.insert(juno.joystick.joysticks, juno.joystick.open(i))
 end
 
 if juno.filesystem.exists("main.lua") then
