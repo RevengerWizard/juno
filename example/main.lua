@@ -1,6 +1,4 @@
 function juno.load()
-    juno.window.setTitle("wizard's magic window")
-    print(juno.window.getTitle())
     print("start load")
 
     -- Load the sprite sheet image
@@ -25,14 +23,14 @@ function juno.load()
 
     font = juno.Font.fromFile("nokia.ttf", 16)
 
-    music = juno.Data.fromFile("microfantasytheme.ogg")
-    source = juno.Source.fromData(music)
+    --music = juno.Data.fromFile("microfantasytheme.ogg")
+    --source = juno.Source.fromData(music)
 
-    sound = juno.Source.fromData(juno.Data.fromFile("fire.ogg"))
-    source:setLoop(true)
-    source:setGain()
-    source:play(true)
-    sound:play(true)
+    --sound = juno.Source.fromData(juno.Data.fromFile("fire.ogg"))
+    --source:setLoop(true)
+    --source:setGain()
+    --source:play(true)
+    ---sound:play(true)
 end
 
 function juno.update(dt)
@@ -87,6 +85,11 @@ function juno.keypressed(key)
     if key == 'p' then
         juno.window.setSize(320 * 3, 180 * 3)
     end
+
+    if key == 'escape' then
+        print("quitting...")
+        juno.event.quit()
+    end
 end
 
 function juno.resize(w, h)
@@ -111,4 +114,41 @@ end
 
 function juno.mousereleased(x, y, button)
     print("mousereleased "..button)
+end
+
+--function juno.joystickpressed(joystick, button)
+--    print(joystick)
+--    print("joystickpressed "..button)
+--end
+
+--function juno.joystickreleased(joystick, button)
+--    print(joystick)
+--    print("joystickreleased "..button)
+--end
+
+function juno.joystickaxis(joystick, axis, value)
+    print("joystickaxis "..axis..", "..value)
+end
+
+function juno.joystickball(joystick, ball, x, y)
+    print("joystickball "..ball..": "..x..", "..y)
+end
+
+function juno.gamepadpressed(joystick, button)
+    --print(joystick)
+    print("gamepadpressed "..button)
+end
+
+function juno.focus(f)
+    if f then
+        print("Window is focused.")
+        text = "FOCUSED"
+    else
+        print("Window is not focused.")
+        text = "UNFOCUSED"
+    end
+end
+
+function juno.visible(v)
+    print(v and "Window is visible!" or "Window is not visible!");
 end
