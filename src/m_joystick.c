@@ -13,14 +13,14 @@ Joystick* joystick_new(lua_State* L)
     return self;
 }
 
-static int joystick_gc(lua_State* L)
+static int l_joystick_gc(lua_State* L)
 {
     Joystick* self = (Joystick*)luaL_checkudata(L, 1, CLASS_NAME);
     SDL_JoystickClose(self->joystick);
     return 0;
 }
 
-static int joystick_getName(lua_State* L)
+static int l_joystick_getName(lua_State* L)
 {
     Joystick* self = (Joystick*)luaL_checkudata(L, 1, CLASS_NAME);
     lua_pushstring(L, SDL_JoystickName(self->joystick));
@@ -28,8 +28,8 @@ static int joystick_getName(lua_State* L)
 }
 
 static const luaL_Reg jreg[] = {
-    { "__gc", joystick_gc },
-    { "getName", joystick_getName },
+    { "__gc", l_joystick_gc },
+    { "getName", l_joystick_getName },
     { NULL, NULL }
 };
 
@@ -42,7 +42,7 @@ int luaopen_joystick_object(lua_State* L)
     return 1;
 }
 
-static int joystick_init(lua_State* L)
+static int l_joystick_init(lua_State* L)
 {
     if(SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) != 0)
     {
@@ -53,7 +53,7 @@ static int joystick_init(lua_State* L)
     return 0;
 }
 
-static int joystick_open(lua_State* L) 
+static int l_joystick_open(lua_State* L) 
 {
     int idx = luaL_checknumber(L, 1);
     Joystick* self;
@@ -74,16 +74,16 @@ static int joystick_open(lua_State* L)
     return 1;
 }
 
-static int joystick_getCount(lua_State* L)
+static int l_joystick_getCount(lua_State* L)
 {
     lua_pushnumber(L, SDL_NumJoysticks());
     return 1;
 }
 
 static const luaL_Reg reg[] = {
-    { "init", joystick_init },
-    { "open", joystick_open },
-    { "getCount", joystick_getCount },
+    { "init", l_joystick_init },
+    { "open", l_joystick_open },
+    { "getCount", l_joystick_getCount },
     { NULL, NULL }
 };
 

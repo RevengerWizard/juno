@@ -31,7 +31,7 @@ static void audio_callback(void* udata, Uint8* stream, int size)
     }
 }
 
-static int audio_init(lua_State* L)
+static int l_audio_init(lua_State* L)
 {
     if(inited)
     {
@@ -43,6 +43,7 @@ static int audio_init(lua_State* L)
         luaL_error(L, "could not init audio");
     }
 
+    /* Init format, open and start */
     SDL_AudioSpec fmt;
     memset(&fmt, 0, sizeof(fmt));
     fmt.freq = 44100;
@@ -61,13 +62,14 @@ static int audio_init(lua_State* L)
     inited = true;
     source_setSamplerate(samplerate);
 
+    /* Start audio */
     SDL_PauseAudio(0);
 
     return 0;
 }
 
 static const luaL_Reg reg[] = {
-    { "init", audio_init },
+    { "init", l_audio_init },
     { NULL, NULL }
 };
 

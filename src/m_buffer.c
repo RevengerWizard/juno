@@ -21,7 +21,7 @@ Buffer* buffer_new(lua_State* L)
     return self;
 }
 
-static int buffer_gc(lua_State* L)
+static int l_buffer_gc(lua_State* L)
 {
     Buffer* self = (Buffer*)luaL_checkudata(L, 1, CLASS_NAME);
     if(self->buffer)
@@ -50,7 +50,7 @@ static int load_buffer(Buffer* self, const void* data, int len)
     return 0;
 }
 
-static int buffer_fromFile(lua_State* L)
+static int l_buffer_fromFile(lua_State* L)
 {
     const char* filename = luaL_checkstring(L, 1);
     Buffer* self = buffer_new(L);
@@ -69,21 +69,21 @@ static int buffer_fromFile(lua_State* L)
     return 1;
 }
 
-static int buffer_getWidth(lua_State* L)
+static int l_buffer_getWidth(lua_State* L)
 {
     Buffer* self = (Buffer*)luaL_checkudata(L, 1, CLASS_NAME);
     lua_pushnumber(L, self->buffer->w);
     return 1;
 }
 
-static int buffer_getHeight(lua_State* L)
+static int l_buffer_getHeight(lua_State* L)
 {
     Buffer* self = (Buffer*)luaL_checkudata(L, 1, CLASS_NAME);
     lua_pushnumber(L, self->buffer->h);
     return 1;
 }
 
-static int buffer_clone(lua_State* L)
+static int l_buffer_clone(lua_State* L)
 {
     Buffer* self = (Buffer*)luaL_checkudata(L, 1, CLASS_NAME);
     Buffer* b = buffer_new(L);
@@ -95,7 +95,7 @@ static int buffer_clone(lua_State* L)
     return 1;
 }
 
-static int buffer_reset(lua_State* L)
+static int l_buffer_reset(lua_State* L)
 {
     Buffer* self = (Buffer*)luaL_checkudata(L, 1, CLASS_NAME);
     sr_reset(self->buffer);
@@ -103,12 +103,12 @@ static int buffer_reset(lua_State* L)
 }
 
 static const luaL_Reg reg[] = {
-    { "__gc", buffer_gc },
-    { "fromFile", buffer_fromFile },
-    { "getWidth", buffer_getWidth },
-    { "getHeight", buffer_getHeight },
-    { "clone", buffer_clone },
-    { "reset", buffer_reset },
+    { "__gc", l_buffer_gc },
+    { "fromFile", l_buffer_fromFile },
+    { "getWidth", l_buffer_getWidth },
+    { "getHeight", l_buffer_getHeight },
+    { "clone", l_buffer_clone },
+    { "reset", l_buffer_reset },
     { NULL, NULL }
 };
 

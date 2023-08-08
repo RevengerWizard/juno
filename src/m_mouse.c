@@ -11,13 +11,13 @@ typedef struct
 
 extern SDLWrapper* sdlwrap;
 
-static int mouse_setVisible(lua_State* L)
+static int l_mouse_setVisible(lua_State* L)
 {
     SDL_ShowCursor(lua_toboolean(L, 1));
     return 0;
 }
 
-static int mouse_setPosition(lua_State* L)
+static int l_mouse_setPosition(lua_State* L)
 {
     int x = luaL_checknumber(L, 1);
     int y = luaL_checknumber(L, 2);
@@ -26,8 +26,8 @@ static int mouse_setPosition(lua_State* L)
 }
 
 static const luaL_Reg reg[] = {
-    { "setVisible", mouse_setVisible },
-    { "setPosition", mouse_setPosition },
+    { "setVisible", l_mouse_setVisible },
+    { "setPosition", l_mouse_setPosition },
     { NULL, NULL }
 };
 

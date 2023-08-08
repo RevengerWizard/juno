@@ -49,7 +49,7 @@ static void check_subrect(lua_State* L, int idx, sr_Buffer* b, sr_Rect* r)
     }
 }
 
-static int graphics_init(lua_State* L)
+static int l_graphics_init(lua_State* L)
 {
     int screenWidth = luaL_checkint(L, 1);
     int screenHeight = luaL_checkint(L, 2);
@@ -69,13 +69,13 @@ static int graphics_init(lua_State* L)
     return 0;
 }
 
-static int graphics_setAlpha(lua_State* L)
+static int l_graphics_setAlpha(lua_State* L)
 {
     sr_setAlpha(screen, luaL_optnumber(L, 1, 255));
     return 0;
 }
 
-static int graphics_setBlend(lua_State* L)
+static int l_graphics_setBlend(lua_State* L)
 {
     const char* modes[] = { "alpha", "color", "add", "subtract", "multiply", "lighten", "darken", "screen", "difference", NULL };
 
@@ -84,19 +84,19 @@ static int graphics_setBlend(lua_State* L)
     return 0;
 }
 
-static int graphics_setColor(lua_State* L)
+static int l_graphics_setColor(lua_State* L)
 {
     sr_setColor(screen, get_color(L, 1));
     return 0;
 }
 
-static int graphics_clear(lua_State* L)
+static int l_graphics_clear(lua_State* L)
 {
     sr_clear(screen, get_color(L, 1));
     return 0;
 }
 
-static int graphics_pixel(lua_State* L)
+static int l_graphics_pixel(lua_State* L)
 {
     int x = luaL_checknumber(L, 1);
     int y = luaL_checknumber(L, 2);
@@ -104,7 +104,7 @@ static int graphics_pixel(lua_State* L)
     return 0;
 }
 
-static int graphics_rectangle(lua_State* L)
+static int l_graphics_rectangle(lua_State* L)
 {
     int id = luaL_checkoption(L, 1, NULL, styles);
     int x = luaL_checknumber(L, 2);
@@ -119,7 +119,7 @@ static int graphics_rectangle(lua_State* L)
     return 0;
 }
 
-static int graphics_circle(lua_State* L)
+static int l_graphics_circle(lua_State* L)
 {
     int id = luaL_checkoption(L, 1, NULL, styles);
     int x = luaL_checknumber(L, 2);
@@ -133,7 +133,7 @@ static int graphics_circle(lua_State* L)
     return 0;
 }
 
-static int graphics_line(lua_State* L)
+static int l_graphics_line(lua_State* L)
 {
     int x1 = luaL_checknumber(L, 1);
     int y1 = luaL_checknumber(L, 2);
@@ -144,7 +144,7 @@ static int graphics_line(lua_State* L)
     return 0;
 }
 
-static int graphics_draw(lua_State* L)
+static int l_graphics_draw(lua_State* L)
 {
     int hasSub = 0;
     sr_Rect sub;
@@ -168,16 +168,16 @@ static int graphics_draw(lua_State* L)
 }
 
 static const luaL_Reg reg[] = {
-    { "init", graphics_init },
-    { "setAlpha", graphics_setAlpha },
-    { "setBlend", graphics_setBlend },
-    { "setColor", graphics_setColor },
-    { "clear", graphics_clear },
-    { "pixel", graphics_pixel },
-    { "line", graphics_line },
-    { "rectangle", graphics_rectangle },
-    { "circle", graphics_circle },
-    { "draw", graphics_draw },
+    { "init", l_graphics_init },
+    { "setAlpha", l_graphics_setAlpha },
+    { "setBlend", l_graphics_setBlend },
+    { "setColor", l_graphics_setColor },
+    { "clear", l_graphics_clear },
+    { "pixel", l_graphics_pixel },
+    { "line", l_graphics_line },
+    { "rectangle", l_graphics_rectangle },
+    { "circle", l_graphics_circle },
+    { "draw", l_graphics_draw },
     { NULL, NULL }
 };
 

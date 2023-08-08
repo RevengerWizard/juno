@@ -5,10 +5,12 @@
 #include "luax.h"
 #include "mapping.h"
 
-static int event_poll(lua_State* L)
+static int l_event_poll(lua_State* L)
 {
+    /* Create events table */
     lua_newtable(L);
 
+    /* Poll events */
     int event = 1;
     SDL_Event e;
     while(SDL_PollEvent(&e))
@@ -190,18 +192,19 @@ static int event_poll(lua_State* L)
                 break;
         }
 
+        /* Push event to events table */
         lua_rawseti(L, -2, event++);
     }
     return 1;
 }
 
-static int event_pump(lua_State* L)
+static int l_event_pump(lua_State* L)
 {
     SDL_PumpEvents();
     return 0;
 }
 
-static int event_quit(lua_State* L)
+static int l_event_quit(lua_State* L)
 {
     SDL_Event event;
     event.type = SDL_QUIT;
@@ -210,9 +213,9 @@ static int event_quit(lua_State* L)
 }
 
 static const luaL_Reg reg[] = {
-    { "poll", event_poll },
-    { "pump", event_pump },
-    { "quit", event_quit },
+    { "poll", l_event_poll },
+    { "pump", l_event_pump },
+    { "quit", l_event_quit },
     { NULL, NULL }
 };
 

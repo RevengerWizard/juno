@@ -15,6 +15,18 @@ local function merge(...)
     return res
 end
 
+local doneOnError = false
+
+local function onError(msg)
+    if not doneOnError then
+        doneOnError = true
+        juno.errorhandler(msg)
+    else
+        print("\n" .. msg .. "\n" .. debug.traceback())
+        os.exit(1)
+    end
+end
+
 local handlers = {
     keypressed = function(e)
         call(juno.keyboard._event, e)
@@ -89,12 +101,12 @@ local handlers = {
     end
 }
 
-function juno.run()
+local function run()
     juno.event.pump()
     for i, e in ipairs(juno.event.poll()) do
         if e.type == "quit" then
             call(handlers[e.type], e)
-            return 0
+            return 1
         end
         call(handlers[e.type], e)
     end
@@ -106,11 +118,47 @@ function juno.run()
     call(juno.mouse.reset)
 end
 
+function juno.run()
+    local status, ret = xpcall(run, onError)
+    if ret == 1 then return 1 end
+end
+
+function juno.errorhandler(msg)
+    -- Print error string
+    print((debug.traceback("Error: " .. tostring(msg), 3):gsub("\n[^\n]+$", "")))
+
+    function juno.run()
+        juno.event.pump()
+        for i, e in ipairs(juno.event.poll()) do
+            if e.type == "quit" then
+                return 1
+            elseif e.type == "keypressed" and e.key == "escape" then
+                return 1
+            end            
+        end
+        call(juno.graphics.clear, 0, 0, 0)
+        call(juno.timer.sleep, 0.1)
+    end
+end
+
 -- Mount project paths
 if juno.arg[2] then
     -- Try to mount all arguments as package
     for i=2, #juno.arg do
         juno.filesystem.mount(juno.arg[i])
+    end
+else
+    -- Try to mount default packages (pak0, pak1, etc.)
+    local dirs = { juno.system.info("exedir") }
+    if juno.system.info("os") == "osx" then
+        table.insert(dirs, juno.system.info("exedir") .. "/../Resources")
+    end
+    for _, dir in ipairs(dirs) do
+        local idx = 0
+        while juno.filesystem.mount(dir .. "/pak" .. idx) do
+            idx = idx + 1
+        end
+        if idx ~= 0 then break end
     end
 end
 
@@ -139,6 +187,16 @@ local conf = merge({
     height      = 200,
 }, c)
 
+if not conf.identity then
+    conf.identity = conf.title:gsub("[^%w]", ""):lower()
+end
+
+local appdata = juno.system.info("appdata")
+local path = appdata .. "/juno/" .. conf.identity
+
+--juno.filesystem.setWritePath(path)
+--juno.filesystem.mount(path)
+
 juno.window.setTitle(conf.title)
 juno.graphics.init(conf.width, conf.height)
 juno.audio.init()
@@ -151,7 +209,8 @@ for i=0, juno.joystick.getCount()-1 do
 end
 
 if juno.filesystem.exists("main.lua") then
-    require "main"
+    -- Load project file
+    xpcall(function() require "main" end, onError)
 end
 
-call(juno.load)
+xpcall(function() call(juno.load) end, onError)

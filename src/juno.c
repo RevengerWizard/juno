@@ -110,6 +110,7 @@ int main(int argc, char** argv)
     screen = sr_newBuffer(WIDTH, HEIGHT);
     sr_setClip(screen, sr_rect(0, 0, WIDTH, HEIGHT));
 
+    /* Init lua state */
     lua_State* L = lua_open();
     luaL_openlibs(L);
 
@@ -129,8 +130,10 @@ int main(int argc, char** argv)
     lua_setmetatable(L, -2);
     lua_setfield(L, LUA_REGISTRYINDEX, SDL_WRAPPER);
 
+    /* Init main module -- this also inits the submodules */
     luaL_requiref(L, "juno", luaopen_juno, 1);
 
+    /* Push command line arguments */
     lua_getglobal(L, "juno");
     lua_newtable(L);
     for(int i = 0; i < argc; i++)
@@ -141,6 +144,11 @@ int main(int argc, char** argv)
     lua_setfield(L, -2, "arg");
     lua_pop(L, 1);
     
+    /* 
+    * Init embedded scripts 
+    * -- these should be ordered in the array in the order we want them loaded;
+    * init.lua should always be last since it depends on all the other modules 
+    */
 #include "graphics_lua.h"
 #include "keyboard_lua.h"
 #include "mouse_lua.h"
@@ -172,6 +180,7 @@ int main(int argc, char** argv)
         }
     }
 
+    /* Do main loop */
     double last = 0;
     while(true)
     {
@@ -188,7 +197,7 @@ int main(int argc, char** argv)
                     fprintf(stderr, "error: %s\n", str);
                     break;
                 }
-                if(lua_isnumber(L, -1) && lua_tonumber(L, -1) == 0)
+                if(lua_isnumber(L, -1) && lua_tonumber(L, -1) == 1)
                     break;
             }
             lua_pop(L, 1);
@@ -222,6 +231,7 @@ int main(int argc, char** argv)
         SDL_RenderCopy(sdlwrap->renderer, sdlwrap->texture, NULL, &dst);
         SDL_RenderPresent(sdlwrap->renderer);
 
+        /* Wait for next frame */
         double step = 1.0 / MAX_FPS;
         double now = SDL_GetTicks64() / 1000.0;
         double wait = step - (now - last);

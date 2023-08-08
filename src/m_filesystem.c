@@ -15,7 +15,7 @@ static void check_error(lua_State* L, int err, const char* str)
     luaL_error(L, "%s '%s'", fs_errorStr(err), str);
 }
 
-static int filesystem_mount(lua_State* L)
+static int l_filesystem_mount(lua_State* L)
 {
     const char* path = luaL_checkstring(L, 1);
     int res = fs_mount(path);
@@ -29,14 +29,14 @@ static int filesystem_mount(lua_State* L)
     return 1;
 }
 
-static int filesystem_unmount(lua_State* L)
+static int l_filesystem_unmount(lua_State* L)
 {
     const char* path = luaL_checkstring(L, 1);
     fs_unmount(path);
     return 0;
 }
 
-static int filesystem_setWritePath(lua_State* L)
+static int l_filesystem_setWritePath(lua_State* L)
 {
     const char* path = luaL_checkstring(L, 1);
     int res = fs_setWritePath(path);
@@ -44,14 +44,14 @@ static int filesystem_setWritePath(lua_State* L)
     return 0;
 }
 
-static int filesystem_exists(lua_State* L)
+static int l_filesystem_exists(lua_State* L)
 {
     const char* filename = luaL_checkstring(L, 1);
     lua_pushboolean(L, fs_exists(filename));
     return 1;
 }
 
-static int filesystem_read(lua_State* L)
+static int l_filesystem_read(lua_State* L)
 {
     const char* filename = luaL_checkstring(L, 1);
     size_t len;
@@ -65,7 +65,7 @@ static int filesystem_read(lua_State* L)
     return 1;
 }
 
-static int filesystem_write(lua_State* L)
+static int l_filesystem_write(lua_State* L)
 {
     const char* filename = luaL_checkstring(L, 1);
     size_t len;
@@ -75,7 +75,7 @@ static int filesystem_write(lua_State* L)
     return 0;
 }
 
-static int filesystem_delete(lua_State* L)
+static int l_filesystem_delete(lua_State* L)
 {
     const char* filename = luaL_checkstring(L, 1);
     int res = fs_delete(filename);
@@ -89,7 +89,7 @@ static int filesystem_delete(lua_State* L)
     return 1;
 }
 
-static int filesystem_getSize(lua_State* L)
+static int l_filesystem_getSize(lua_State* L)
 {
     const char* filename = luaL_checkstring(L, 1);
     size_t sz;
@@ -99,7 +99,7 @@ static int filesystem_getSize(lua_State* L)
     return 1;
 }
 
-static int filesystem_getModified(lua_State* L)
+static int l_filesystem_getModified(lua_State* L)
 {
     const char* filename = luaL_checkstring(L, 1);
     unsigned t;
@@ -109,14 +109,14 @@ static int filesystem_getModified(lua_State* L)
     return 1;
 }
 
-static int filesystem_isDir(lua_State* L)
+static int l_filesystem_isDir(lua_State* L)
 {
     const char* filename = luaL_checkstring(L, 1);
     lua_pushboolean(L, fs_isDir(filename));
     return 1;
 }
 
-static int filesystem_listDir(lua_State* L)
+static int l_filesystem_listDir(lua_State* L)
 {
     const char* path = luaL_checkstring(L, 1);
     fs_FileListNode* list = fs_listDir(path);
@@ -134,7 +134,7 @@ static int filesystem_listDir(lua_State* L)
     return 1;
 }
 
-static int filesystem_append(lua_State* L)
+static int l_filesystem_append(lua_State* L)
 {
     const char* filename = luaL_checkstring(L, 1);
     size_t len;
@@ -144,7 +144,7 @@ static int filesystem_append(lua_State* L)
     return 0;
 }
 
-static int filesystem_makeDirs(lua_State* L)
+static int l_filesystem_makeDirs(lua_State* L)
 {
     const char* path = luaL_checkstring(L, 1);
     int res = fs_makeDirs(path);
@@ -156,20 +156,20 @@ static int filesystem_makeDirs(lua_State* L)
 }
 
 static const luaL_Reg reg[] = {
-    { "mount", filesystem_mount },
-    { "unmount", filesystem_unmount },
-    { "setWritePath", filesystem_setWritePath },
-    { "read", filesystem_read },
-    { "exists", filesystem_exists },
-    { "read", filesystem_read },
-    { "write", filesystem_write },
-    { "delete", filesystem_delete },
-    { "getSize", filesystem_getSize },
-    { "getModified", filesystem_getModified },
-    { "isDir", filesystem_isDir },
-    { "listDir", filesystem_listDir },
-    { "append", filesystem_append },
-    { "makeDirs", filesystem_makeDirs },
+    { "mount", l_filesystem_mount },
+    { "unmount", l_filesystem_unmount },
+    { "setWritePath", l_filesystem_setWritePath },
+    { "read", l_filesystem_read },
+    { "exists", l_filesystem_exists },
+    { "read", l_filesystem_read },
+    { "write", l_filesystem_write },
+    { "delete", l_filesystem_delete },
+    { "getSize", l_filesystem_getSize },
+    { "getModified", l_filesystem_getModified },
+    { "isDir", l_filesystem_isDir },
+    { "listDir", l_filesystem_listDir },
+    { "append", l_filesystem_append },
+    { "makeDirs", l_filesystem_makeDirs },
     { NULL, NULL }
 };
 

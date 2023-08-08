@@ -14,14 +14,14 @@ static Data* new_data(lua_State* L)
     return self;
 }
 
-static int data_gc(lua_State* L)
+static int l_data_gc(lua_State* L)
 {
     Data* self = (Data*)luaL_checkudata(L, 1, CLASS_NAME);
     free(self->data);
     return 1;
 }
 
-static int data_fromFile(lua_State* L)
+static int l_data_fromFile(lua_State* L)
 {
     const char* filename = luaL_checkstring(L, 1);
     Data* self = new_data(L);
@@ -36,7 +36,7 @@ static int data_fromFile(lua_State* L)
     return 1;
 }
 
-static int data_toString(lua_State* L)
+static int l_data_toString(lua_State* L)
 {
     Data* self = (Data*)luaL_checkudata(L, 1, CLASS_NAME);
     lua_pushlstring(L, self->data, self->len);
@@ -44,9 +44,9 @@ static int data_toString(lua_State* L)
 }
 
 static const luaL_Reg reg[] = {
-    { "__gc", data_gc },
-    { "fromFile", data_fromFile },
-    { "toString", data_toString },
+    { "__gc", l_data_gc },
+    { "fromFile", l_data_fromFile },
+    { "toString", l_data_toString },
     { NULL, NULL }
 };
 

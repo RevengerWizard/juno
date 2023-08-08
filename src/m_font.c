@@ -26,7 +26,7 @@ static Font* font_new(lua_State* L)
     return self;
 }
 
-static int font_gc(lua_State* L)
+static int l_font_gc(lua_State* L)
 {
     Font* self = (Font*)luaL_checkudata(L, 1, CLASS_NAME);
     if(self->font)
@@ -47,7 +47,7 @@ static const char* load_font(Font* self, const void* data, int len, int ptsize)
     return NULL;
 }
 
-static int font_fromFile(lua_State* L)
+static int l_font_fromFile(lua_State* L)
 {
     const char* filename = luaL_checkstring(L, 1);
     int fontsize = luaL_optint(L, 2, DEFAULT_FONTSIZE);
@@ -66,7 +66,7 @@ static int font_fromFile(lua_State* L)
     return 1;
 }
 
-static int font_fromEmbedded(lua_State* L)
+static int l_font_fromEmbedded(lua_State* L)
 {
 #include "font_ttf.h"
 
@@ -78,7 +78,7 @@ static int font_fromEmbedded(lua_State* L)
     return 1;
 }
 
-static int font_render(lua_State* L)
+static int l_font_render(lua_State* L)
 {
     int w, h;
     Font* self = (Font*)luaL_checkudata(L, 1, CLASS_NAME);
@@ -103,7 +103,7 @@ static int font_render(lua_State* L)
     return 1;
 }
 
-static int font_getWidth(lua_State* L)
+static int l_font_getWidth(lua_State* L)
 {
     Font* self = (Font*)luaL_checkudata(L, 1, CLASS_NAME);
     const char* str = luaL_checkstring(L, 2);
@@ -111,7 +111,7 @@ static int font_getWidth(lua_State* L)
     return 1;
 }
 
-static int font_getHeight(lua_State* L)
+static int l_font_getHeight(lua_State* L)
 {
     Font* self = (Font*)luaL_checkudata(L, 1, CLASS_NAME);
     lua_pushnumber(L, ttf_height(self->font));
@@ -119,12 +119,12 @@ static int font_getHeight(lua_State* L)
 }
 
 static const luaL_Reg reg[] = {
-    { "__gc", font_gc },
-    { "fromFile", font_fromFile },
-    { "fromEmbedded", font_fromEmbedded },
-    { "render", font_render },
-    { "getWidth", font_getWidth },
-    { "getHeight", font_getHeight },
+    { "__gc", l_font_gc },
+    { "fromFile", l_font_fromFile },
+    { "fromEmbedded", l_font_fromEmbedded },
+    { "render", l_font_render },
+    { "getWidth", l_font_getWidth },
+    { "getHeight", l_font_getHeight },
     { NULL, NULL }
 };
 

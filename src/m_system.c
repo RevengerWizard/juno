@@ -38,7 +38,7 @@ static const char* os_name(void)
 #endif    
 }
 
-static int system_info(lua_State* L)
+static int l_system_info(lua_State* L)
 {
     const char* opts[] = { "os", "exedir", "appdata", NULL };
     
@@ -91,7 +91,7 @@ static int system_info(lua_State* L)
 }
 
 static const luaL_Reg reg[] = {
-    { "info", system_info },
+    { "info", l_system_info },
     { NULL, NULL }
 };
 

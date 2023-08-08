@@ -450,7 +450,7 @@ void source_processAllSources(int len)
     }
 }
 
-static int source_gc(lua_State* L)
+static int l_source_gc(lua_State* L)
 {
     Source* self = check_source(L, 1);
     Command c = command(COMMAND_DESTROY, self);
@@ -458,7 +458,7 @@ static int source_gc(lua_State* L)
     return 0;
 }
 
-static int source_fromData(lua_State* L)
+static int l_source_fromData(lua_State* L)
 {
     Data* data = (Data*)luaL_checkudata(L, 1, DATA_CLASS_NAME);
     Source* self = new_source(L);
@@ -496,7 +496,7 @@ init:;
     return 1;
 }
 
-static int source_setLoop(lua_State* L)
+static int l_source_setLoop(lua_State* L)
 {
     Source* self = check_source(L, 1);
     int loop = luax_optboolean(L, 2, 0);
@@ -506,7 +506,7 @@ static int source_setLoop(lua_State* L)
     return 0;
 }
 
-static int source_setGain(lua_State* L)
+static int l_source_setGain(lua_State* L)
 {
     Source* self = check_source(L, 1);
     double gain = luaL_optnumber(L, 2, 1.);
@@ -516,7 +516,7 @@ static int source_setGain(lua_State* L)
     return 0;
 }
 
-static int source_getState(lua_State* L)
+static int l_source_getState(lua_State* L)
 {
     Source* self = check_source(L, 1);
     switch(self->state)
@@ -537,7 +537,7 @@ static int source_getState(lua_State* L)
     return 1;
 }
 
-static int source_play(lua_State* L)
+static int l_source_play(lua_State* L)
 {
     Source* self = check_source(L, 1);
     int reset = luax_optboolean(L, 2, 0);
@@ -547,7 +547,7 @@ static int source_play(lua_State* L)
     return 0;
 }
 
-static int source_pause(lua_State* L)
+static int l_source_pause(lua_State* L)
 {
     Source* self = check_source(L, 1);
     Command c = command(COMMAND_PAUSE, self);
@@ -555,7 +555,7 @@ static int source_pause(lua_State* L)
     return 0;
 }
 
-static int source_stop(lua_State* L)
+static int l_source_stop(lua_State* L)
 {
     Source* self = check_source(L, 1);
     Command c = command(COMMAND_STOP, self);
@@ -564,14 +564,14 @@ static int source_stop(lua_State* L)
 }
 
 static const luaL_Reg reg[] = {
-    { "__gc", source_gc },
-    { "fromData", source_fromData },
-    { "getState", source_getState },
-    { "setLoop", source_setLoop },
-    { "setGain", source_setGain },
-    { "play", source_play },
-    { "pause", source_pause },
-    { "stop", source_stop },
+    { "__gc", l_source_gc },
+    { "fromData", l_source_fromData },
+    { "getState", l_source_getState },
+    { "setLoop", l_source_setLoop },
+    { "setGain", l_source_setGain },
+    { "play", l_source_play },
+    { "pause", l_source_pause },
+    { "stop", l_source_stop },
     { NULL, NULL }
 };
 

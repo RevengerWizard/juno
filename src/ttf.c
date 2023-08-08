@@ -26,19 +26,19 @@
 ttf_Font* ttf_new(const void* data, int len)
 {
     ttf_Font* self = calloc(1, sizeof(*self));
-    if (!self)
+    if(!self)
     {
         goto fail;
     }
     /* Copy font data */
     self->fontData = malloc(len);
-    if (!self->fontData)
+    if(!self->fontData)
     {
         goto fail;
     }
     memcpy(self->fontData, data, len);
     /* Init font */
-    if (!stbtt_InitFont(&self->font, self->fontData, 0))
+    if(!stbtt_InitFont(&self->font, self->fontData, 0))
     {
         goto fail;
     }
@@ -101,14 +101,15 @@ static const char* ttf_utf8toCodepoint(const char* p, unsigned* res)
     do
     {
         /* Return early if we reach an unexpected NULL */
-        if (*(++p) == '\0')
+        if(*(++p) == '\0')
         {
             *res = x;
             return p;
         }
         shift -= 6;
         x |= (*p & 0x3f) << shift;
-    } while (shift);
+    } 
+    while (shift);
     *res = x;
     return p + 1;
 }
@@ -119,7 +120,7 @@ static float ttf_charWidthf(ttf_Font* self, int c, int last)
     int width, lsb;
     stbtt_GetCodepointHMetrics(&self->font, c, &width, &lsb);
     res = width;
-    if (last)
+    if(last)
     {
         int kerning = stbtt_GetCodepointKernAdvance(&self->font, last, c);
         res += kerning;
@@ -127,12 +128,12 @@ static float ttf_charWidthf(ttf_Font* self, int c, int last)
     return res * self->scale;
 }
 
-int ttf_width(ttf_Font *self, const char *str)
+int ttf_width(ttf_Font* self, const char* str)
 {
     float res = 0;
     int last = 0;
     const char* p = str;
-    while (*p)
+    while(*p)
     {
         unsigned c;
         p = ttf_utf8toCodepoint(p, &c);
@@ -147,13 +148,13 @@ void* ttf_render(ttf_Font *self, const char* str, int* w, int* h)
     *w = ttf_width(self, str);
     *h = ttf_height(self);
     void* pixels = calloc(1, *w * *h);
-    if (!pixels)
+    if(!pixels)
         return NULL;
     const char *p = str;
     float xoffset = 0;
     float xfract = 0;
     int last = 0;
-    while (*p)
+    while(*p)
     {
         /* Get unicode codepoint */
         unsigned c;
@@ -166,9 +167,9 @@ void* ttf_render(ttf_Font *self, const char* str, int* w, int* h)
         /* Work out position / max size */
         int x = xoffset + x0;
         int y = self->baseline + y0;
-        if (x < 0)
+        if(x < 0)
             x = 0;
-        if (y < 0)
+        if(y < 0)
             y = 0;
         /* Render char */
         stbtt_MakeCodepointBitmapSubpixel(
