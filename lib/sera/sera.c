@@ -36,6 +36,7 @@ typedef struct
 {
     int x, y;
 } sr_Point;
+
 typedef struct
 {
     unsigned x, y, z, w;
@@ -47,12 +48,12 @@ static unsigned char div8Table[256][256];
 static void init(void)
 {
     int a, b;
-    if (inited)
+    if(inited)
         return;
     /* Init 8bit divide lookup table */
-    for (b = 1; b < 256; b++)
+    for(b = 1; b < 256; b++)
     {
-        for (a = 0; a < 256; a++)
+        for(a = 0; a < 256; a++)
         {
             div8Table[a][b] = (a << 8) / b;
         }
@@ -61,9 +62,9 @@ static void init(void)
     inited = 1;
 }
 
-static void check(int cond, const char *fname, const char *msg)
+static void check(int cond, const char* fname, const char* msg)
 {
-    if (!cond)
+    if(!cond)
     {
         fprintf(stderr, "(error) %s() %s\n", fname, msg);
         exit(EXIT_FAILURE);
@@ -72,7 +73,7 @@ static void check(int cond, const char *fname, const char *msg)
 
 static int xdiv(int n, int x)
 {
-    if (x == 0)
+    if(x == 0)
         return n;
     return n / x;
 }
@@ -87,7 +88,7 @@ static sr_RandState rand128init(unsigned seed)
     return s;
 }
 
-static unsigned rand128(sr_RandState *s)
+static unsigned rand128(sr_RandState* s)
 {
     unsigned t = s->x ^ (s->x << 11);
     s->x = s->y;
@@ -142,32 +143,32 @@ static void clipRect(sr_Rect *r, sr_Rect *to)
     r->h = MAX(y2 - y1, 0);
 }
 
-static void clipRectAndOffset(sr_Rect *r, int *x, int *y, sr_Rect *to)
+static void clipRectAndOffset(sr_Rect* r, int* x, int* y, sr_Rect* to)
 {
     int d;
-    if ((d = (to->x - *x)) > 0)
+    if((d = (to->x - *x)) > 0)
     {
         *x += d;
         r->w -= d;
         r->x += d;
     }
-    if ((d = (to->y - *y)) > 0)
+    if((d = (to->y - *y)) > 0)
     {
         *y += d;
         r->h -= d;
         r->y += d;
     }
-    if ((d = (*x + r->w) - (to->x + to->w)) > 0)
+    if((d = (*x + r->w) - (to->x + to->w)) > 0)
     {
         r->w -= d;
     }
-    if ((d = (*y + r->h) - (to->y + to->h)) > 0)
+    if((d = (*y + r->h) - (to->y + to->h)) > 0)
     {
         r->h -= d;
     }
 }
 
-static void initBuffer(sr_Buffer *b, void *pixels, int w, int h)
+static void initBuffer(sr_Buffer* b, void* pixels, int w, int h)
 {
     /* Init lookup tables if not inited */
     init();
@@ -178,15 +179,15 @@ static void initBuffer(sr_Buffer *b, void *pixels, int w, int h)
     sr_reset(b);
 }
 
-sr_Buffer *sr_newBuffer(int w, int h)
+sr_Buffer* sr_newBuffer(int w, int h)
 {
-    sr_Buffer *b = calloc(1, sizeof(*b));
-    if (!b)
+    sr_Buffer* b = calloc(1, sizeof(*b));
+    if(!b)
         return NULL;
     check(w > 0, "sr_newBuffer", "expected width of 1 or greater");
     check(h > 0, "sr_newBuffer", "expected height of 1 or greater");
     b->pixels = malloc(w * h * sizeof(*b->pixels));
-    if (!b->pixels)
+    if(!b->pixels)
     {
         free(b);
         return NULL;
@@ -195,9 +196,9 @@ sr_Buffer *sr_newBuffer(int w, int h)
     return b;
 }
 
-sr_Buffer *sr_newBufferShared(void *pixels, int w, int h)
+sr_Buffer* sr_newBufferShared(void* pixels, int w, int h)
 {
-    sr_Buffer *b = calloc(1, sizeof(*b));
+    sr_Buffer* b = calloc(1, sizeof(*b));
     if (!b)
         return NULL;
     initBuffer(b, pixels, w, h);
@@ -205,11 +206,11 @@ sr_Buffer *sr_newBufferShared(void *pixels, int w, int h)
     return b;
 }
 
-sr_Buffer *sr_cloneBuffer(sr_Buffer *src)
+sr_Buffer* sr_cloneBuffer(sr_Buffer* src)
 {
-    sr_Pixel *pixels;
-    sr_Buffer *b = sr_newBuffer(src->w, src->h);
-    if (!b)
+    sr_Pixel* pixels;
+    sr_Buffer* b = sr_newBuffer(src->w, src->h);
+    if(!b)
         return NULL;
     pixels = b->pixels;
     memcpy(pixels, src->pixels, b->w * b->h * sizeof(*b->pixels));
@@ -218,21 +219,21 @@ sr_Buffer *sr_cloneBuffer(sr_Buffer *src)
     return b;
 }
 
-void sr_destroyBuffer(sr_Buffer *b)
+void sr_destroyBuffer(sr_Buffer* b)
 {
-    if (~b->flags & SR_BUFFER_SHARED)
+    if(~b->flags & SR_BUFFER_SHARED)
     {
         free(b->pixels);
     }
     free(b);
 }
 
-void sr_loadPixels(sr_Buffer *b, void *src, int fmt)
+void sr_loadPixels(sr_Buffer* b, void* src, int fmt)
 {
     int sr, sg, sb, sa;
     int i = b->w * b->h;
     unsigned *s = src;
-    switch (fmt)
+    switch(fmt)
     {
         case SR_FMT_BGRA:
             sr = 16, sg = 8, sb = 0, sa = 24;
@@ -249,7 +250,7 @@ void sr_loadPixels(sr_Buffer *b, void *src, int fmt)
         default:
             check(0, "sr_loadPixels", "bad fmt");
     }
-    while (i--)
+    while(i--)
     {
         b->pixels[i].rgba.r = (s[i] >> sr) & 0xff;
         b->pixels[i].rgba.g = (s[i] >> sg) & 0xff;
@@ -258,12 +259,12 @@ void sr_loadPixels(sr_Buffer *b, void *src, int fmt)
     }
 }
 
-void sr_loadPixels8(sr_Buffer *b, unsigned char *src, sr_Pixel *pal)
+void sr_loadPixels8(sr_Buffer* b, unsigned char* src, sr_Pixel* pal)
 {
     int i = b->w * b->h;
-    while (i--)
+    while(i--)
     {
-        if (pal)
+        if(pal)
         {
             b->pixels[i] = pal[src[i]];
         }
@@ -274,29 +275,29 @@ void sr_loadPixels8(sr_Buffer *b, unsigned char *src, sr_Pixel *pal)
     }
 }
 
-void sr_setBlend(sr_Buffer *b, int blend)
+void sr_setBlend(sr_Buffer* b, int blend)
 {
     b->mode.blend = blend;
 }
 
-void sr_setAlpha(sr_Buffer *b, int alpha)
+void sr_setAlpha(sr_Buffer* b, int alpha)
 {
     b->mode.alpha = CLAMP(alpha, 0, 0xff);
 }
 
-void sr_setColor(sr_Buffer *b, sr_Pixel c)
+void sr_setColor(sr_Buffer* b, sr_Pixel c)
 {
     b->mode.color.word = c.word & SR_RGB_MASK;
 }
 
-void sr_setClip(sr_Buffer *b, sr_Rect r)
+void sr_setClip(sr_Buffer* b, sr_Rect r)
 {
     b->clip = r;
     r = sr_rect(0, 0, b->w, b->h);
     clipRect(&b->clip, &r);
 }
 
-void sr_reset(sr_Buffer *b)
+void sr_reset(sr_Buffer* b)
 {
     sr_setBlend(b, SR_BLEND_ALPHA);
     sr_setAlpha(b, 0xff);
@@ -304,19 +305,19 @@ void sr_reset(sr_Buffer *b)
     sr_setClip(b, sr_rect(0, 0, b->w, b->h));
 }
 
-void sr_clear(sr_Buffer *b, sr_Pixel c)
+void sr_clear(sr_Buffer* b, sr_Pixel c)
 {
     int i = b->w * b->h;
-    while (i--)
+    while(i--)
     {
         b->pixels[i] = c;
     }
 }
 
-sr_Pixel sr_getPixel(sr_Buffer *b, int x, int y)
+sr_Pixel sr_getPixel(sr_Buffer* b, int x, int y)
 {
     sr_Pixel p;
-    if (x >= 0 && y >= 0 && x < b->w && y < b->h)
+    if(x >= 0 && y >= 0 && x < b->w && y < b->h)
     {
         return b->pixels[x + y * b->w];
     }
@@ -324,25 +325,25 @@ sr_Pixel sr_getPixel(sr_Buffer *b, int x, int y)
     return p;
 }
 
-void sr_setPixel(sr_Buffer *b, sr_Pixel c, int x, int y)
+void sr_setPixel(sr_Buffer* b, sr_Pixel c, int x, int y)
 {
-    if (x >= 0 && y >= 0 && x < b->w && y < b->h)
+    if(x >= 0 && y >= 0 && x < b->w && y < b->h)
     {
         b->pixels[x + y * b->w] = c;
     }
 }
 
 static void copyPixelsBasic(
-    sr_Buffer *b, sr_Buffer *src, int x, int y, sr_Rect s)
+    sr_Buffer* b, sr_Buffer* src, int x, int y, sr_Rect s)
 {
     int i;
     /* Clip to destination buffer */
     clipRectAndOffset(&s, &x, &y, &b->clip);
     /* Clipped off screen? */
-    if (s.w <= 0 || s.h <= 0)
+    if(s.w <= 0 || s.h <= 0)
         return;
     /* Copy pixels */
-    for (i = 0; i < s.h; i++)
+    for(i = 0; i < s.h; i++)
     {
         memcpy(b->pixels + x + (y + i) * b->w,
                src->pixels + s.x + (s.y + i) * src->w,
@@ -351,48 +352,48 @@ static void copyPixelsBasic(
 }
 
 static void copyPixelsScaled(
-    sr_Buffer *b, sr_Buffer *src, int x, int y, sr_Rect s,
+    sr_Buffer* b, sr_Buffer* src, int x, int y, sr_Rect s,
     float scalex, float scaley)
 {
     int d, dx, dy, edx, sx, sy, inx, iny;
-    sr_Pixel *p;
+    sr_Pixel* p;
     int w = s.w * scalex;
     int h = s.h * scaley;
     inx = FX_UNIT / scalex;
     iny = FX_UNIT / scaley;
     /* Clip to destination buffer */
-    if ((d = (b->clip.x - x)) > 0)
+    if((d = (b->clip.x - x)) > 0)
     {
         x += d;
         s.x += d / scalex;
         w -= d;
     }
-    if ((d = (b->clip.y - y)) > 0)
+    if((d = (b->clip.y - y)) > 0)
     {
         y += d;
         s.y += d / scaley;
         h -= d;
     }
-    if ((d = ((x + w) - (b->clip.x + b->clip.w))) > 0)
+    if((d = ((x + w) - (b->clip.x + b->clip.w))) > 0)
     {
         w -= d;
     }
-    if ((d = ((y + h) - (b->clip.y + b->clip.h))) > 0)
+    if((d = ((y + h) - (b->clip.y + b->clip.h))) > 0)
     {
         h -= d;
     }
     /* Clipped offscreen? */
-    if (w == 0 || h == 0)
+    if(w == 0 || h == 0)
         return;
     /* Draw */
     sy = s.y << FX_BITS;
-    for (dy = y; dy < y + h; dy++)
+    for(dy = y; dy < y + h; dy++)
     {
         p = src->pixels + (s.x >> FX_BITS) + src->w * (sy >> FX_BITS);
         sx = 0;
         dx = x + b->w * dy;
         edx = dx + w;
-        while (dx < edx)
+        while(dx < edx)
         {
             b->pixels[dx++] = p[sx >> FX_BITS];
             sx += inx;
@@ -402,18 +403,18 @@ static void copyPixelsScaled(
 }
 
 void sr_copyPixels(
-    sr_Buffer *b, sr_Buffer *src, int x, int y, sr_Rect *sub,
+    sr_Buffer* b, sr_Buffer* src, int x, int y, sr_Rect* sub,
     float sx, float sy)
 {
     sr_Rect s;
     sx = fabs(sx);
     sy = fabs(sy);
-    if (sx == 0 || sy == 0)
+    if(sx == 0 || sy == 0)
         return;
     /* Check sub rectangle */
-    if (sub)
+    if(sub)
     {
-        if (sub->w <= 0 || sub->h <= 0)
+        if(sub->w <= 0 || sub->h <= 0)
             return;
         s = *sub;
         check(s.x >= 0 && s.y >= 0 && s.x + s.w <= src->w && s.y + s.h <= src->h,
@@ -424,7 +425,7 @@ void sr_copyPixels(
         s = sr_rect(0, 0, src->w, src->h);
     }
     /* Dispatch */
-    if (sx == 1 && sy == 1)
+    if(sx == 1 && sy == 1)
     {
         /* Basic un-scaled copy */
         copyPixelsBasic(b, src, x, y, s);
@@ -436,16 +437,16 @@ void sr_copyPixels(
     }
 }
 
-void sr_noise(sr_Buffer *b, unsigned seed, int low, int high, int grey)
+void sr_noise(sr_Buffer* b, unsigned seed, int low, int high, int grey)
 {
     sr_RandState s = rand128init(seed);
     int i;
     low = CLAMP(low, 0, 0xfe);
     high = CLAMP(high, low + 1, 0xff);
     i = b->w * b->h;
-    if (grey)
+    if(grey)
     {
-        while (i--)
+        while(i--)
         {
             b->pixels[i].rgba.r = low + rand128(&s) % (high - low);
             b->pixels[i].rgba.g = b->pixels[i].rgba.b = b->pixels[i].rgba.r;
@@ -454,7 +455,7 @@ void sr_noise(sr_Buffer *b, unsigned seed, int low, int high, int grey)
     }
     else
     {
-        while (i--)
+        while(i--)
         {
             b->pixels[i].word = rand128(&s) | ~SR_RGB_MASK;
             b->pixels[i].rgba.r = low + b->pixels[i].rgba.r % (high - low);
@@ -464,10 +465,10 @@ void sr_noise(sr_Buffer *b, unsigned seed, int low, int high, int grey)
     }
 }
 
-static void floodFill(sr_Buffer *b, sr_Pixel c, sr_Pixel o, int x, int y)
+static void floodFill(sr_Buffer* b, sr_Pixel c, sr_Pixel o, int x, int y)
 {
     int ir, il;
-    if (
+    if(
         y < 0 || y >= b->h || x < 0 || x >= b->w ||
         b->pixels[x + y * b->w].word != o.word)
     {
@@ -475,20 +476,20 @@ static void floodFill(sr_Buffer *b, sr_Pixel c, sr_Pixel o, int x, int y)
     }
     /* Fill left */
     il = x;
-    while (il >= 0 && b->pixels[il + y * b->w].word == o.word)
+    while(il >= 0 && b->pixels[il + y * b->w].word == o.word)
     {
         b->pixels[il + y * b->w] = c;
         il--;
     }
     /* Fill right */
     ir = (x < b->w - 1) ? (x + 1) : x;
-    while (ir < b->w && b->pixels[ir + y * b->w].word == o.word)
+    while(ir < b->w && b->pixels[ir + y * b->w].word == o.word)
     {
         b->pixels[ir + y * b->w] = c;
         ir++;
     }
     /* Fill up and down */
-    while (il <= ir)
+    while(il <= ir)
     {
         floodFill(b, c, o, il, y - 1);
         floodFill(b, c, o, il, y + 1);
@@ -496,25 +497,25 @@ static void floodFill(sr_Buffer *b, sr_Pixel c, sr_Pixel o, int x, int y)
     }
 }
 
-void sr_floodFill(sr_Buffer *b, sr_Pixel c, int x, int y)
+void sr_floodFill(sr_Buffer* b, sr_Pixel c, int x, int y)
 {
     floodFill(b, c, sr_getPixel(b, x, y), x, y);
 }
 
-static void blendPixel(sr_DrawMode *m, sr_Pixel *d, sr_Pixel s)
+static void blendPixel(sr_DrawMode* m, sr_Pixel* d, sr_Pixel s)
 {
     int alpha = (s.rgba.a * m->alpha) >> 8;
-    if (alpha <= 1)
+    if(alpha <= 1)
         return;
     /* Color */
-    if (m->color.word != SR_RGB_MASK)
+    if(m->color.word != SR_RGB_MASK)
     {
         s.rgba.r = (s.rgba.r * m->color.rgba.r) >> 8;
         s.rgba.g = (s.rgba.g * m->color.rgba.g) >> 8;
         s.rgba.b = (s.rgba.b * m->color.rgba.b) >> 8;
     }
     /* Blend */
-    switch (m->blend)
+    switch(m->blend)
     {
         default:
         case SR_BLEND_ALPHA:
@@ -561,11 +562,11 @@ static void blendPixel(sr_DrawMode *m, sr_Pixel *d, sr_Pixel s)
             break;
     }
     /* Write */
-    if (alpha >= 254)
+    if(alpha >= 254)
     {
         *d = s;
     }
-    else if (d->rgba.a >= 254)
+    else if(d->rgba.a >= 254)
     {
         d->rgba.r = LERP(8, d->rgba.r, s.rgba.r, alpha);
         d->rgba.g = LERP(8, d->rgba.g, s.rgba.g, alpha);
@@ -582,9 +583,9 @@ static void blendPixel(sr_DrawMode *m, sr_Pixel *d, sr_Pixel s)
     }
 }
 
-void sr_drawPixel(sr_Buffer *b, sr_Pixel c, int x, int y)
+void sr_drawPixel(sr_Buffer* b, sr_Pixel c, int x, int y)
 {
-    if (
+    if(
         x >= b->clip.x && x < b->clip.x + b->clip.w &&
         y >= b->clip.y && y < b->clip.y + b->clip.h)
     {
@@ -592,19 +593,19 @@ void sr_drawPixel(sr_Buffer *b, sr_Pixel c, int x, int y)
     }
 }
 
-void sr_drawLine(sr_Buffer *b, sr_Pixel c, int x0, int y0, int x1, int y1)
+void sr_drawLine(sr_Buffer* b, sr_Pixel c, int x0, int y0, int x1, int y1)
 {
     int x, y;
     int deltax, deltay;
     int error;
     int ystep;
     int steep = abs(y1 - y0) > abs(x1 - x0);
-    if (steep)
+    if(steep)
     {
         SWAP(int, x0, y0);
         SWAP(int, x1, y1);
     }
-    if (x0 > x1)
+    if(x0 > x1)
     {
         SWAP(int, x0, x1);
         SWAP(int, y0, y1);
@@ -614,9 +615,9 @@ void sr_drawLine(sr_Buffer *b, sr_Pixel c, int x0, int y0, int x1, int y1)
     error = deltax / 2;
     ystep = (y0 < y1) ? 1 : -1;
     y = y0;
-    for (x = x0; x <= x1; x++)
+    for(x = x0; x <= x1; x++)
     {
-        if (steep)
+        if(steep)
         {
             sr_drawPixel(b, c, y, x);
         }
@@ -625,7 +626,7 @@ void sr_drawLine(sr_Buffer *b, sr_Pixel c, int x0, int y0, int x1, int y1)
             sr_drawPixel(b, c, x, y);
         }
         error -= deltay;
-        if (error < 0)
+        if(error < 0)
         {
             y += ystep;
             error += deltax;
@@ -633,63 +634,63 @@ void sr_drawLine(sr_Buffer *b, sr_Pixel c, int x0, int y0, int x1, int y1)
     }
 }
 
-void sr_drawRect(sr_Buffer *b, sr_Pixel c, int x, int y, int w, int h)
+void sr_drawFilledRect(sr_Buffer* b, sr_Pixel c, int x, int y, int w, int h)
 {
     sr_Pixel *p;
     sr_Rect r = sr_rect(x, y, w, h);
     clipRect(&r, &b->clip);
     y = r.h;
-    while (y--)
+    while(y--)
     {
         x = r.w;
         p = b->pixels + r.x + (r.y + y) * b->w;
-        while (x--)
+        while(x--)
         {
             blendPixel(&b->mode, p++, c);
         }
     }
 }
 
-void sr_drawBox(sr_Buffer *b, sr_Pixel c, int x, int y, int w, int h)
+void sr_drawRect(sr_Buffer* b, sr_Pixel c, int x, int y, int w, int h)
 {
-    sr_drawRect(b, c, x + 1, y, w - 1, 1);
-    sr_drawRect(b, c, x, y + h - 1, w - 1, 1);
-    sr_drawRect(b, c, x, y, 1, h - 1);
-    sr_drawRect(b, c, x + w - 1, y + 1, 1, h - 1);
+    sr_drawFilledRect(b, c, x + 1, y, w - 1, 1);
+    sr_drawFilledRect(b, c, x, y + h - 1, w - 1, 1);
+    sr_drawFilledRect(b, c, x, y, 1, h - 1);
+    sr_drawFilledRect(b, c, x + w - 1, y + 1, 1, h - 1);
 }
 
 #define DRAW_ROW(x, y, len)                                  \
     do                                                       \
     {                                                        \
         int y__ = (y);                                       \
-        if (y__ >= 0 && ~rows[y__ >> 5] & (1 << (y__ & 31))) \
+        if(y__ >= 0 && ~rows[y__ >> 5] & (1 << (y__ & 31))) \
         {                                                    \
-            sr_drawRect(b, c, x, y__, len, 1);               \
+            sr_drawFilledRect(b, c, x, y__, len, 1);               \
             rows[y__ >> 5] |= 1 << (y__ & 31);               \
         }                                                    \
-    } while (0)
+    } while(0)
 
-void sr_drawCircle(sr_Buffer *b, sr_Pixel c, int x, int y, int r)
+void sr_drawFilledCircle(sr_Buffer* b, sr_Pixel c, int x, int y, int r)
 {
     int dx = abs(r);
     int dy = 0;
     int radiusError = 1 - dx;
     unsigned rows[512];
     /* Clipped completely off-screen? */
-    if (x + dx < b->clip.x || x - dx > b->clip.x + b->clip.w ||
+    if(x + dx < b->clip.x || x - dx > b->clip.x + b->clip.w ||
         y + dx < b->clip.y || y - dx > b->clip.y + b->clip.h)
         return;
     /* zeroset bit array of drawn rows -- we keep track of which rows have been
      * drawn so that we can avoid overdraw */
     memset(rows, 0, sizeof(rows));
-    while (dx >= dy)
+    while(dx >= dy)
     {
         DRAW_ROW(x - dx, y + dy, dx << 1);
         DRAW_ROW(x - dx, y - dy, dx << 1);
         DRAW_ROW(x - dy, y + dx, dy << 1);
         DRAW_ROW(x - dy, y - dx, dy << 1);
         dy++;
-        if (radiusError < 0)
+        if(radiusError < 0)
         {
             radiusError += 2 * dy + 1;
         }
@@ -703,18 +704,18 @@ void sr_drawCircle(sr_Buffer *b, sr_Pixel c, int x, int y, int r)
 
 #undef DRAW_ROW
 
-void sr_drawRing(sr_Buffer *b, sr_Pixel c, int x, int y, int r)
+void sr_drawCircle(sr_Buffer* b, sr_Pixel c, int x, int y, int r)
 {
     /* TODO : Prevent against overdraw? */
     int dx = abs(r);
     int dy = 0;
     int radiusError = 1 - dx;
     /* Clipped completely off-screen? */
-    if (x + dx < b->clip.x || x - dx > b->clip.x + b->clip.w ||
+    if(x + dx < b->clip.x || x - dx > b->clip.x + b->clip.w ||
         y + dx < b->clip.y || y - dx > b->clip.y + b->clip.h)
         return;
     /* Draw */
-    while (dx >= dy)
+    while(dx >= dy)
     {
         sr_drawPixel(b, c, dx + x, dy + y);
         sr_drawPixel(b, c, dy + x, dx + y);
@@ -725,7 +726,7 @@ void sr_drawRing(sr_Buffer *b, sr_Pixel c, int x, int y, int r)
         sr_drawPixel(b, c, dx + x, -dy + y);
         sr_drawPixel(b, c, dy + x, -dx + y);
         dy++;
-        if (radiusError < 0)
+        if(radiusError < 0)
         {
             radiusError += 2 * dy + 1;
         }
@@ -738,22 +739,22 @@ void sr_drawRing(sr_Buffer *b, sr_Pixel c, int x, int y, int r)
 }
 
 static void drawBufferBasic(
-    sr_Buffer *b, sr_Buffer *src, int x, int y, sr_Rect s)
+    sr_Buffer* b, sr_Buffer* src, int x, int y, sr_Rect s)
 {
     int ix, iy;
-    sr_Pixel *pd, *ps;
+    sr_Pixel* pd, *ps;
     /* Clip to destination buffer */
     clipRectAndOffset(&s, &x, &y, &b->clip);
     /* Clipped off screen? */
-    if (s.w <= 0 || s.h <= 0)
+    if(s.w <= 0 || s.h <= 0)
         return;
     /* Draw */
-    for (iy = 0; iy < s.h; iy++)
+    for(iy = 0; iy < s.h; iy++)
     {
         pd = b->pixels + x + (y + iy) * b->w;
         ps = src->pixels + s.x + (s.y + iy) * src->w;
         ix = s.w;
-        while (ix--)
+        while(ix--)
         {
             blendPixel(&b->mode, pd++, *ps++);
         }
@@ -761,7 +762,7 @@ static void drawBufferBasic(
 }
 
 static void drawBufferScaled(
-    sr_Buffer *b, sr_Buffer *src, int x, int y, sr_Rect s, sr_Transform a)
+    sr_Buffer* b, sr_Buffer* src, int x, int y, sr_Rect s, sr_Transform a)
 {
     float absSx = (a.sx < 0) ? -a.sx : a.sx;
     float absSy = (a.sy < 0) ? -a.sy : a.sy;
@@ -777,36 +778,36 @@ static void drawBufferScaled(
     x = x - ((a.sx < 0) ? w : 0) - (a.sx < 0 ? -1 : 1) * a.ox * absSx;
     y = y - ((a.sy < 0) ? h : 0) - (a.sy < 0 ? -1 : 1) * a.oy * absSy;
     /* Clipped completely offscreen horizontally? */
-    if (x + w < b->clip.x || x > b->clip.x + b->clip.w)
+    if(x + w < b->clip.x || x > b->clip.x + b->clip.w)
         return;
     /* Adjust for clipping */
     dy = 0;
     odx = 0;
-    if ((d = (b->clip.y - y)) > 0)
+    if((d = (b->clip.y - y)) > 0)
     {
         dy = d;
         s.y += d / a.sy;
     }
-    if ((d = (b->clip.x - x)) > 0)
+    if((d = (b->clip.x - x)) > 0)
     {
         odx = d;
         s.x += d / a.sx;
     }
-    if ((d = ((y + h) - (b->clip.y + b->clip.h))) > 0)
+    if((d = ((y + h) - (b->clip.y + b->clip.h))) > 0)
     {
         h -= d;
     }
-    if ((d = ((x + w) - (b->clip.x + b->clip.w))) > 0)
+    if((d = ((x + w) - (b->clip.x + b->clip.w))) > 0)
     {
         w -= d;
     }
     /* Draw */
     sy = osy;
-    while (dy < h)
+    while(dy < h)
     {
         dx = odx;
         sx = osx;
-        while (dx < w)
+        while(dx < w)
         {
             blendPixel(&b->mode, b->pixels + (x + dx) + (y + dy) * b->w,
                        src->pixels[(s.x + (sx >> FX_BITS)) +
@@ -820,21 +821,21 @@ static void drawBufferScaled(
 }
 
 static void drawScanline(
-    sr_Buffer *b, sr_Buffer *src, sr_Rect *s, int left, int right,
+    sr_Buffer* b, sr_Buffer* src, sr_Rect* s, int left, int right,
     int dy, int sx, int sy, int sxIncr, int syIncr)
 {
     int d, dx;
     int x, y;
     /* Adjust for clipping */
-    if (dy < b->clip.y || dy >= b->clip.y + b->clip.h)
+    if(dy < b->clip.y || dy >= b->clip.y + b->clip.h)
         return;
-    if ((d = b->clip.x - left) > 0)
+    if((d = b->clip.x - left) > 0)
     {
         left += d;
         sx += d * sxIncr;
         sy += d * syIncr;
     }
-    if ((d = right - (b->clip.x + b->clip.w)) > 0)
+    if((d = right - (b->clip.x + b->clip.w)) > 0)
     {
         right -= d;
     }
@@ -843,7 +844,7 @@ static void drawScanline(
 checkSourceLeft:
     x = sx >> FX_BITS;
     y = sy >> FX_BITS;
-    if (x < s->x || y < s->y || x >= s->x + s->w || y >= s->y + s->h)
+    if(x < s->x || y < s->y || x >= s->x + s->w || y >= s->y + s->h)
     {
         left++;
         sx += sxIncr;
@@ -855,7 +856,7 @@ checkSourceLeft:
 checkSourceRight:
     x = (sx + sxIncr * (right - left)) >> FX_BITS;
     y = (sy + syIncr * (right - left)) >> FX_BITS;
-    if (x < s->x || y < s->y || x >= s->x + s->w || y >= s->y + s->h)
+    if(x < s->x || y < s->y || x >= s->x + s->w || y >= s->y + s->h)
     {
         right--;
         if (left >= right)
@@ -864,7 +865,7 @@ checkSourceRight:
     }
     /* Draw */
     dx = left;
-    while (dx < right)
+    while(dx < right)
     {
         blendPixel(&b->mode, b->pixels + dx + dy * b->w,
                    src->pixels[(sx >> FX_BITS) +
@@ -885,7 +886,7 @@ checkSourceRight:
 }
 
 static void drawBufferRotatedScaled(
-    sr_Buffer *b, sr_Buffer *src, int x, int y, sr_Rect s, sr_Transform a)
+    sr_Buffer* b, sr_Buffer* src, int x, int y, sr_Rect s, sr_Transform a)
 {
     sr_Point p[4], top, bottom, left, right;
     int dy, xl, xr, il, ir;
@@ -919,9 +920,9 @@ static void drawBufferRotatedScaled(
     bottom = p[(-q + 2) & 3];
     left = p[(-q + 3) & 3];
     /* Clipped completely off screen? */
-    if (bottom.y < b->clip.y || top.y >= b->clip.y + b->clip.h)
+    if(bottom.y < b->clip.y || top.y >= b->clip.y + b->clip.h)
         return;
-    if (right.x < b->clip.x || left.x >= b->clip.x + b->clip.w)
+    if(right.x < b->clip.x || left.x >= b->clip.x + b->clip.w)
         return;
     /* Destination */
     xl = xr = top.x << FX_BITS;
@@ -932,7 +933,7 @@ static void drawBufferRotatedScaled(
     syi = xdiv(s.h << FX_BITS, h) * sin(-a.r);
     sxoi = xdiv(s.w << FX_BITS, left.y - top.y) * sinq;
     syoi = xdiv(s.h << FX_BITS, left.y - top.y) * cosq;
-    switch (q)
+    switch(q)
     {
         default:
         case 0:
@@ -953,7 +954,7 @@ static void drawBufferRotatedScaled(
             break;
     }
     /* Draw */
-    if (left.y == top.y || right.y == top.y)
+    if(left.y == top.y || right.y == top.y)
     {
         /* Adjust for right-angled rotation */
         dy = top.y - 1;
@@ -962,10 +963,10 @@ static void drawBufferRotatedScaled(
     {
         dy = top.y;
     }
-    while (dy <= bottom.y)
+    while(dy <= bottom.y)
     {
         /* Invert source iterators & increments if we are scaled negatively */
-        if (invX)
+        if(invX)
         {
             tsx = ((s.x * 2 + s.w) << FX_BITS) - sx - 1;
             tsxi = -sxi;
@@ -975,7 +976,7 @@ static void drawBufferRotatedScaled(
             tsx = sx;
             tsxi = sxi;
         }
-        if (invY)
+        if(invY)
         {
             tsy = ((s.y * 2 + s.h) << FX_BITS) - sy - 1;
             tsyi = -syi;
@@ -994,13 +995,13 @@ static void drawBufferRotatedScaled(
         xr += ir;
         dy++;
         /* Modify increments if we've reached the left or right corner */
-        if (dy == left.y)
+        if(dy == left.y)
         {
             il = xdiv((bottom.x - left.x) << FX_BITS, bottom.y - left.y);
             sxoi = xdiv(s.w << FX_BITS, bottom.y - left.y) * cosq;
             syoi = xdiv(s.h << FX_BITS, bottom.y - left.y) * -sinq;
         }
-        if (dy == right.y)
+        if(dy == right.y)
         {
             ir = xdiv((bottom.x - right.x) << FX_BITS, bottom.y - right.y);
         }
@@ -1008,14 +1009,14 @@ static void drawBufferRotatedScaled(
 }
 
 void sr_drawBuffer(
-    sr_Buffer *b, sr_Buffer *src, int x, int y,
-    sr_Rect *sub, sr_Transform *t)
+    sr_Buffer* b, sr_Buffer* src, int x, int y,
+    sr_Rect* sub, sr_Transform* t)
 {
     sr_Rect s;
     /* Init sub rect */
-    if (sub)
+    if(sub)
     {
-        if (sub->w <= 0 || sub->h <= 0)
+        if(sub->w <= 0 || sub->h <= 0)
             return;
         s = *sub;
         check(s.x >= 0 && s.y >= 0 && s.x + s.w <= src->w && s.y + s.h <= src->h,
@@ -1026,7 +1027,7 @@ void sr_drawBuffer(
         s = sr_rect(0, 0, src->w, src->h);
     }
     /* Draw */
-    if (!t)
+    if(!t)
     {
         drawBufferBasic(b, src, x, y, s);
     }
@@ -1036,13 +1037,13 @@ void sr_drawBuffer(
         /* Move rotation value into 0..PI2 range */
         a.r = fmod(fmod(a.r, PI2) + PI2, PI2);
         /* Not rotated or scaled? apply offset and draw basic */
-        if (a.r == 0 && a.sx == 1 && a.sy == 1)
+        if(a.r == 0 && a.sx == 1 && a.sy == 1)
         {
             x -= a.ox;
             y -= a.oy;
             drawBufferBasic(b, src, x, y, s);
         }
-        else if (a.r == 0)
+        else if(a.r == 0)
         {
             drawBufferScaled(b, src, x, y, s, a);
         }

@@ -2,7 +2,7 @@
 
 #if LUA_VERSION_NUM < 502
 
-int luax_getsubtable(lua_State *L, int idx, const char *fname)
+int luax_getsubtable(lua_State* L, int idx, const char* fname)
 {
 	lua_getfield(L, idx, fname);
 	if(lua_istable(L, -1)) return 1;  /* table already there */

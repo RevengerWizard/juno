@@ -104,6 +104,17 @@ static int l_graphics_pixel(lua_State* L)
     return 0;
 }
 
+static int l_graphics_line(lua_State* L)
+{
+    int x1 = luaL_checknumber(L, 1);
+    int y1 = luaL_checknumber(L, 2);
+    int x2 = luaL_checknumber(L, 3);
+    int y2 = luaL_checknumber(L, 4);
+    sr_Pixel px = get_color(L, 5);
+    sr_drawLine(screen, px, x1, y1, x2, y2);
+    return 0;
+}
+
 static int l_graphics_rectangle(lua_State* L)
 {
     int id = luaL_checkoption(L, 1, NULL, styles);
@@ -113,9 +124,9 @@ static int l_graphics_rectangle(lua_State* L)
     int h = luaL_checknumber(L, 5);
     sr_Pixel px = get_color(L, 6);
     if(id == 0)
-        sr_drawRect(screen, px, x, y, w, h);
+        sr_drawFilledRect(screen, px, x, y, w, h);
     else
-        sr_drawBox(screen, px, x, y, w, h);
+        sr_drawRect(screen, px, x, y, w, h);
     return 0;
 }
 
@@ -127,20 +138,9 @@ static int l_graphics_circle(lua_State* L)
     int r = luaL_checknumber(L, 4);
     sr_Pixel px = get_color(L, 5);
     if(id == 0)
-        sr_drawCircle(screen, px, x, y, r);
+        sr_drawFilledCircle(screen, px, x, y, r);
     else
-        sr_drawRing(screen, px, x, y, r);
-    return 0;
-}
-
-static int l_graphics_line(lua_State* L)
-{
-    int x1 = luaL_checknumber(L, 1);
-    int y1 = luaL_checknumber(L, 2);
-    int x2 = luaL_checknumber(L, 3);
-    int y2 = luaL_checknumber(L, 4);
-    sr_Pixel px = get_color(L, 5);
-    sr_drawLine(screen, px, x1, y1, x2, y2);
+        sr_drawCircle(screen, px, x, y, r);
     return 0;
 }
 
