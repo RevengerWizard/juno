@@ -84,6 +84,9 @@ local handlers = {
     textedited = function(e)
         call(juno.textedited, e.text, e.start, e.length)
     end,
+    filedropped = function(e)
+        call(juno.filedropped, e.file)
+    end,
     focus = function(e)
         call(juno.focus, e.focus)
     end,

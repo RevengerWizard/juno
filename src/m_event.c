@@ -4,6 +4,7 @@
 
 #include "luax.h"
 #include "mapping.h"
+#include "fs.h"
 
 static int l_event_poll(lua_State* L)
 {
@@ -182,6 +183,14 @@ static int l_event_poll(lua_State* L)
                         break;
                     }
                 }
+                break;
+            }
+            case SDL_DROPFILE:
+            {
+                fs_mount(e.drop.file);
+                luax_setfield_string(L, "type", "filedropped");
+                luax_setfield_string(L, "file", e.drop.file);
+                SDL_free(e.drop.file);
                 break;
             }
             case SDL_APP_TERMINATING:
