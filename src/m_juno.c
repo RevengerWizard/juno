@@ -13,21 +13,22 @@ static const luaL_Reg reg[] = {
 
 static const luaL_Reg mods[] = {
     /* Objects */
+    { "Font", luaopen_font },
+    { "Buffer", luaopen_buffer },
     { "Source", luaopen_source },
     { "Data", luaopen_data },
-    { "Buffer", luaopen_buffer },
-    { "Font", luaopen_font },
+    { "Gif", luaopen_gif },
     { "Joystick", luaopen_joystick_object },
     /* Modules */
-    { "joystick", luaopen_joystick },
-    { "audio", luaopen_audio },
     { "window", luaopen_window },
-    { "graphics", luaopen_graphics },
     { "event", luaopen_event },
     { "system", luaopen_system },
     { "filesystem", luaopen_filesystem },
-    { "mouse", luaopen_mouse },
     { "timer", luaopen_timer },
+    { "graphics", luaopen_graphics },
+    { "audio", luaopen_audio },
+    { "mouse", luaopen_mouse },
+    { "joystick", luaopen_joystick },
     { NULL, NULL }
 };
 
