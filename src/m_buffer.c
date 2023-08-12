@@ -69,6 +69,37 @@ static int l_buffer_fromFile(lua_State* L)
     return 1;
 }
 
+static int l_buffer_fromString(lua_State* L)
+{
+    size_t len;
+    const char* str = luaL_checklstring(L, 1, &len);
+    Buffer* self = buffer_new(L);
+    int err = load_buffer(self, str, len);
+    if(err)
+    {
+        luaL_error(L, "could not load buffer");
+    }
+    return 1;
+}
+
+static int l_buffer_fromBlank(lua_State* L)
+{
+    int w = luaL_checknumber(L, 1);
+    int h = luaL_checknumber(L, 2);
+    if(w <= 0)
+        luaL_argerror(L, 1, "expected width greater than 0");
+    if(h <= 0)
+        luaL_argerror(L, 2, "expected height greater than 0");
+    Buffer* self = buffer_new(L);
+    self->buffer = sr_newBuffer(w, h);
+    sr_clear(self->buffer, sr_pixel(0, 0, 0, 0));
+    if(!self->buffer)
+    {
+        luaL_error(L, "could not create buffer");
+    }
+    return 1;
+}
+
 static int l_buffer_getWidth(lua_State* L)
 {
     Buffer* self = (Buffer*)luaL_checkudata(L, 1, CLASS_NAME);
@@ -105,6 +136,8 @@ static int l_buffer_reset(lua_State* L)
 static const luaL_Reg reg[] = {
     { "__gc", l_buffer_gc },
     { "fromFile", l_buffer_fromFile },
+    { "fromString", l_buffer_fromString },
+    { "fromBlank", l_buffer_fromBlank },
     { "getWidth", l_buffer_getWidth },
     { "getHeight", l_buffer_getHeight },
     { "clone", l_buffer_clone },

@@ -36,6 +36,21 @@ static int l_data_fromFile(lua_State* L)
     return 1;
 }
 
+static int l_data_fromString(lua_State* L)
+{
+    size_t len;
+    const char* data = luaL_checklstring(L, 1, &len);
+    Data* self = new_data(L);
+    self->data = malloc(len);
+    if(!self->data)
+    {
+        luaL_error(L, "out of memory");
+    }
+    memcpy(self->data, data, len);
+    self->len = len;
+    return 1;
+}
+
 static int l_data_toString(lua_State* L)
 {
     Data* self = (Data*)luaL_checkudata(L, 1, CLASS_NAME);
@@ -43,10 +58,19 @@ static int l_data_toString(lua_State* L)
     return 1;
 }
 
+static int l_data_getLength(lua_State* L)
+{
+    Data* self = (Data*)luaL_checkudata(L, 1, CLASS_NAME);
+    lua_pushnumber(L, self->len);
+    return 1;
+}
+
 static const luaL_Reg reg[] = {
     { "__gc", l_data_gc },
     { "fromFile", l_data_fromFile },
+    { "fromString", l_data_fromString },
     { "toString", l_data_toString },
+    { "getLength", l_data_getLength },
     { NULL, NULL }
 };
 
