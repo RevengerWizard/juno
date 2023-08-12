@@ -4,8 +4,10 @@
 
 #include <SDL.h>
 
-#include "common.h"
+#define JO_GIF_HEADER_FILE_ONLY
 #include "jo_gif.c"
+
+#include "common.h"
 #include "luax.h"
 #include "m_buffer.h"
 
@@ -39,7 +41,6 @@ static int l_gif_new(lua_State* L)
     self->w = w;
     self->h = h;
     self->buf = malloc(w * h * 4);
-    ASSERT(self->buf);
     memset(self->buf, 0, w * h * 4);
     /* Activate gif */
     self->gif = jo_gif_start(filename, self->w, self->h, 0, ncolors);
@@ -115,7 +116,7 @@ static const luaL_Reg reg[] = {
 
 int luaopen_gif(lua_State* L)
 {
-    ASSERT(luaL_newmetatable(L, CLASS_NAME));
+    luaL_newmetatable(L, CLASS_NAME);
     luaL_setfuncs(L, reg, 0);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
