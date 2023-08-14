@@ -13,6 +13,15 @@
 
 #define CLASS_NAME  BUFFER_CLASS_NAME
 
+static sr_Pixel get_color(lua_State* L, int first)
+{
+    int r = luaL_optnumber(L, first, 255);
+    int g = luaL_optnumber(L, first + 1, 255);
+    int b = luaL_optnumber(L, first + 2, 255);
+    int a = luaL_optnumber(L, first + 3, 255);
+    return sr_pixel(r, g, b, a);
+}
+
 Buffer* buffer_new(lua_State* L)
 {
     Buffer* self = (Buffer*)lua_newuserdata(L, sizeof(*self));
@@ -114,6 +123,28 @@ static int l_buffer_getHeight(lua_State* L)
     return 1;
 }
 
+static int l_buffer_getPixel(lua_State* L)
+{
+    Buffer* self = (Buffer*)luaL_checkudata(L, 1, CLASS_NAME);
+    int x = luaL_checknumber(L, 2);
+    int y = luaL_checknumber(L, 3);
+    sr_Pixel px = sr_getPixel(self->buffer, x, y);
+    lua_pushnumber(L, px.rgba.r);
+    lua_pushnumber(L, px.rgba.g);
+    lua_pushnumber(L, px.rgba.b);
+    lua_pushnumber(L, px.rgba.a);
+    return 4;
+}
+
+static int l_buffer_setPixel(lua_State* L)
+{
+    Buffer* self = (Buffer*)luaL_checkudata(L, 1, CLASS_NAME);
+    int x = luaL_checknumber(L, 2);
+    int y = luaL_checknumber(L, 3);
+    sr_setPixel(self->buffer, get_color(L, 4), x, y);
+    return 0;
+}
+
 static int l_buffer_clone(lua_State* L)
 {
     Buffer* self = (Buffer*)luaL_checkudata(L, 1, CLASS_NAME);
@@ -140,6 +171,8 @@ static const luaL_Reg reg[] = {
     { "fromBlank", l_buffer_fromBlank },
     { "getWidth", l_buffer_getWidth },
     { "getHeight", l_buffer_getHeight },
+    { "getPixel", l_buffer_getPixel },
+    { "setPixel", l_buffer_setPixel },
     { "clone", l_buffer_clone },
     { "reset", l_buffer_reset },
     { NULL, NULL }

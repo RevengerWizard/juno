@@ -108,7 +108,6 @@ int main(int argc, char** argv)
     }
 
     screen = sr_newBuffer(WIDTH, HEIGHT);
-    sr_setClip(screen, sr_rect(0, 0, WIDTH, HEIGHT));
 
     /* Init lua state */
     lua_State* L = lua_open();

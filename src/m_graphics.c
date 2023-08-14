@@ -62,7 +62,6 @@ static int l_graphics_init(lua_State* L)
     SDL_DestroyTexture(sdlwrap->texture);
 
     screen = sr_newBuffer(WIDTH, HEIGHT);
-    sr_setClip(screen, sr_rect(0, 0, WIDTH, HEIGHT));
 
     sdlwrap->texture = SDL_CreateTexture(sdlwrap->renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
     

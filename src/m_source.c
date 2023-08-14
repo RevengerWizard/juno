@@ -581,6 +581,8 @@ int luaopen_source(lua_State* L)
     luaL_setfuncs(L, reg, 0);
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
+
+    /* Init master */
     master = new_source(L);
     masterRef = luaL_ref(L, LUA_REGISTRYINDEX);
     Command c = command(COMMAND_ADD, master);
