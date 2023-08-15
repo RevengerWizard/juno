@@ -185,20 +185,21 @@ if juno.filesystem.exists("conf.lua") then
 end
 
 local conf = merge({
+    identity    = nil
     title       = "untitled",
     width       = 200,
     height      = 200,
 }, c)
 
-if not conf.identity then
-    conf.identity = conf.title:gsub("[^%w]", ""):lower()
+if conf.identity then
+    conf.identity = conf.identity:gsub("[^%w]", ""):lower()
+
+    local appdata = juno.system.info("appdata")
+    local path = appdata .. "/juno/" .. conf.identity
+    
+    juno.filesystem.setWritePath(path)
+    juno.filesystem.mount(path)
 end
-
-local appdata = juno.system.info("appdata")
-local path = appdata .. "/juno/" .. conf.identity
-
---juno.filesystem.setWritePath(path)
---juno.filesystem.mount(path)
 
 juno.window.setTitle(conf.title)
 juno.graphics.init(conf.width, conf.height)
