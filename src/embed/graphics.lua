@@ -28,11 +28,12 @@ function juno.graphics.print(text, x, y, r, sx, sy, ox, oy)
     if text:find("\n") then
         -- Multi line
         local height = font:getHeight()
-        for line in (text.."\n"):gmatch("(.-)\n") do
+        for line in (text .. "\n"):gmatch("(.-)\n") do
             juno.graphics.print(line, x, y, r, sx, sy, ox, oy)
             y = y + height
         end
     else
+        -- Single line
         local tex = fontTexCache[font][text]
         if not tex then
             tex = font:render(text)
@@ -40,4 +41,18 @@ function juno.graphics.print(text, x, y, r, sx, sy, ox, oy)
         end
         juno.graphics.draw(tex, x, y, nil, r, sx, sy, ox, oy)
     end
+end
+
+-- Override juno.graphics.clear() to use _clearColor if available
+local clear = juno.graphics.clear
+function juno.graphics.clear(r, g, b, a)
+    local c = juno.graphics._clearColor
+    r = r or (c and c[1])
+    g = g or (c and c[2])
+    b = b or (c and c[3])
+    clear(r, g, b, 1)
+end
+
+function juno.graphics.setClearColor(...)
+    juno.graphics._clearColor = { ... }
 end

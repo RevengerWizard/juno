@@ -115,7 +115,7 @@ local function run()
     end
     call(juno.timer.step)
     call(juno.update, call(juno.timer.getDelta))
-    call(juno.graphics.clear, 0, 0, 0)
+    call(juno.graphics.clear)
     call(juno.draw)
     call(juno.keyboard.reset)
     call(juno.mouse.reset)
@@ -139,7 +139,7 @@ function juno.errorhandler(msg)
                 return 1
             end            
         end
-        call(juno.graphics.clear, 0, 0, 0)
+        call(juno.graphics.clear)
         call(juno.timer.sleep, 0.1)
     end
 end
@@ -185,7 +185,7 @@ if juno.filesystem.exists("conf.lua") then
 end
 
 local conf = merge({
-    identity    = nil
+    identity    = nil,
     title       = "untitled",
     width       = 200,
     height      = 200,
@@ -203,6 +203,7 @@ end
 
 juno.window.setTitle(conf.title)
 juno.graphics.init(conf.width, conf.height)
+juno.graphics.setClearColor(0, 0, 0)
 juno.audio.init()
 juno.joystick.init()
 
