@@ -94,7 +94,7 @@ static int l_system_info(lua_State* L)
 
 static int l_system_getClipboard(lua_State* L)
 {
-    const char* text = SDL_GetClipboardText();
+    char* text = SDL_GetClipboardText();
     lua_pushstring(L, text);
     SDL_free(text);
     return 1;
@@ -106,7 +106,7 @@ static int l_system_setClipboard(lua_State* L)
 
     if(SDL_SetClipboardText(text) < 0)
     {
-        luaL_error("Can't set clipboard: %s", SDL_GetError());
+        luaL_error(L, "Can't set clipboard: %s", SDL_GetError());
     }
     
     return 0;
