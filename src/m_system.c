@@ -6,6 +6,8 @@
 #include <mach-o/dyld.h>
 #endif
 
+#include <SDL.h>
+
 #include "luax.h"
 
 static char* dirname(char* str)
@@ -90,8 +92,30 @@ static int l_system_info(lua_State* L)
     return 1;
 }
 
+static int l_system_getClipboard(lua_State* L)
+{
+    const char* text = SDL_GetClipboardText();
+    lua_pushstring(L, text);
+    SDL_free(text);
+    return 1;
+}
+
+static int l_system_setClipboard(lua_State* L)
+{
+    const char* text = luaL_checkstring(L, 1);
+
+    if(SDL_SetClipboardText(text) < 0)
+    {
+        luaL_error("Can't set clipboard: %s", SDL_GetError());
+    }
+    
+    return 0;
+}
+
 static const luaL_Reg reg[] = {
     { "info", l_system_info },
+    { "getClipboard", l_system_getClipboard },
+    { "setClipboard", l_system_setClipboard },
     { NULL, NULL }
 };
 
